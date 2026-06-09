@@ -173,8 +173,9 @@ func (p *IP) Join() string {
 }
 
 type GeoIP struct {
-	IP          IP     `json:"ip,omitempty"`
-	CountryCode string `json:"country_code,omitempty"`
+	IP           IP     `json:"ip,omitempty"`
+	CountryCode  string `json:"country_code,omitempty"`
+	Organization string `json:"organization,omitempty"`
 }
 
 func PB2GeoIP(p *pb.GeoIP) GeoIP {

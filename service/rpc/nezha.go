@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -402,14 +403,30 @@ func (s *NezhaHandler) ReportGeoIP(c context.Context, r *pb.GeoIP) (*pb.GeoIP, e
 	}
 
 	netIP := net.ParseIP(ip)
-	location, err := geoipx.Lookup(netIP)
+	lookupInfo, err := geoipx.LookupInfo(netIP)
 	if err != nil {
 		log.Printf("NEZHA>> geoip.Lookup: %v", err)
 	}
+	location := geoIPLocation(lookupInfo)
 	geoip.CountryCode = location
+	if lookupInfo != nil {
+		geoip.Organization = lookupInfo.Organization
+	}
 
 	// 将地区码写入到 Host
 	server.GeoIP = &geoip
 
 	return &pb.GeoIP{Ip: nil, CountryCode: location, DashboardBootTime: singleton.DashboardBootTime}, nil
+}
+
+func geoIPLocation(info *geoipx.LookupResult) string {
+	if info == nil {
+		return ""
+	}
+	if info.CountryCode != "" {
+		return strings.ToLower(info.CountryCode)
+	} else if info.Continent != "" {
+		return strings.ToLower(info.Continent)
+	}
+	return ""
 }

@@ -233,8 +233,10 @@ func filterServersForViewer(servers []*model.Server, viewerUserID uint64, viewer
 			continue
 		}
 		var countryCode string
+		var organization string
 		if server.GeoIP != nil {
 			countryCode = server.GeoIP.CountryCode
+			organization = server.GeoIP.Organization
 		}
 		out = append(out, model.StreamServer{
 			ID:           server.ID,
@@ -244,6 +246,7 @@ func filterServersForViewer(servers []*model.Server, viewerUserID uint64, viewer
 			Host:         utils.IfOr(isOwnerOrAdmin, server.Host, server.Host.Filter()),
 			State:        server.State,
 			CountryCode:  countryCode,
+			Organization: organization,
 			LastActive:   server.LastActive,
 		})
 	}

@@ -8,10 +8,11 @@ type StreamServer struct {
 	PublicNote   string `json:"public_note,omitempty"`   // 公开备注，只第一个数据包有值
 	DisplayIndex int    `json:"display_index,omitempty"` // 展示排序，越大越靠前
 
-	Host        *Host      `json:"host,omitempty"`
-	State       *HostState `json:"state,omitempty"`
-	CountryCode string     `json:"country_code,omitempty"`
-	LastActive  time.Time  `json:"last_active,omitempty"`
+	Host         *Host      `json:"host,omitempty"`
+	State        *HostState `json:"state,omitempty"`
+	CountryCode  string     `json:"country_code,omitempty"`
+	Organization string     `json:"organization,omitempty"`
+	LastActive   time.Time  `json:"last_active,omitempty"`
 }
 
 type StreamServerData struct {
