@@ -59,7 +59,9 @@
 }
 
 #root .server-inline-list > section > div > section:first-child > div:last-child > p[title]:not(:first-child),
-#root .server-inline-list > div > section:first-child > div:last-child > p[title]:not(:first-child) {
+#root .server-inline-list > div > section:first-child > div:last-child > p[title]:not(:first-child),
+#root .server-inline-list > section > div > section:first-child > div:last-child > p:nth-of-type(2),
+#root .server-inline-list > div > section:first-child > div:last-child > p:nth-of-type(2) {
   display: inline-flex !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -71,7 +73,8 @@
 
 #root .server-card-list section[style*="grid-template-columns"] > div:last-child,
 #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:first-child,
-#root .server-card-list section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child) {
+#root .server-card-list section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child),
+#root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
   width: 180px !important;
   max-width: 180px !important;
 }
@@ -80,11 +83,21 @@
   grid-template-columns: auto auto minmax(180px, 1fr) !important;
 }
 
-#root .server-card-list p[title]:not(:first-child) {
+#root .server-card-list p[title]:not(:first-child),
+#root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
   display: inline-flex !important;
   visibility: visible !important;
   opacity: 1 !important;
   white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#root .server-inline-list > section > div > section:first-child > div:last-child > p:nth-of-type(2) > span,
+#root .server-inline-list > div > section:first-child > div:last-child > p:nth-of-type(2) > span,
+#root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) > span {
+  display: block !important;
+  max-width: 100% !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
@@ -101,7 +114,9 @@
   #root .server-inline-list > section > div > section:first-child > div:last-child > p:first-child,
   #root .server-inline-list > div > section:first-child > div:last-child > p:first-child,
   #root .server-inline-list > section > div > section:first-child > div:last-child > p[title]:not(:first-child),
-  #root .server-inline-list > div > section:first-child > div:last-child > p[title]:not(:first-child) {
+  #root .server-inline-list > div > section:first-child > div:last-child > p[title]:not(:first-child),
+  #root .server-inline-list > section > div > section:first-child > div:last-child > p:nth-of-type(2),
+  #root .server-inline-list > div > section:first-child > div:last-child > p:nth-of-type(2) {
     width: 310px !important;
     max-width: 310px !important;
   }
