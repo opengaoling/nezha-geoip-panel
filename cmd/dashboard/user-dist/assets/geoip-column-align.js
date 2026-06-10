@@ -1,27 +1,111 @@
 (function () {
   const root = document.documentElement;
-  const selector = ".server-inline-list > section > div > div:last-child > section";
+  const containerSelector = ".server-inline-list > section > div > div:last-child";
   const minWidths = [70, 58, 78, 86, 86, 70, 70, 82, 82];
-  const measuringClass = "geoip-column-align-measuring";
+  const styleId = "geoip-column-align-runtime-css";
   let frame = 0;
+  let measurer = null;
+
+  function ensureStyle() {
+    if (document.getElementById(styleId)) return;
+    const style = document.createElement("style");
+    style.id = styleId;
+    style.textContent = `
+#root .server-inline-list > section > div > div:last-child > section:first-child {
+  display: grid !important;
+  grid-template-columns:
+    var(--geoip-col-1,70px)
+    var(--geoip-col-2,58px)
+    var(--geoip-col-3,78px)
+    var(--geoip-col-4,86px)
+    var(--geoip-col-5,86px)
+    var(--geoip-col-6,70px)
+    var(--geoip-col-7,70px)
+    var(--geoip-col-8,82px)
+    var(--geoip-col-9,82px) !important;
+  gap: 0 12px !important;
+  align-items: center !important;
+  width: max-content !important;
+}
+#root .server-inline-list > section > div > div:last-child > section:first-child > div {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  overflow: hidden !important;
+}
+#root .server-inline-list > section > div > div:last-child > section:not(:first-child) {
+  display: flex !important;
+  grid-template-columns: none !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+}
+`;
+    document.head.appendChild(style);
+  }
+
+  function metricRows() {
+    return Array.from(document.querySelectorAll(containerSelector))
+      .map((container) => container.firstElementChild)
+      .filter((row) => row && row.tagName === "SECTION" && row.children.length >= minWidths.length);
+  }
+
+  function ensureMeasurer() {
+    if (measurer) return measurer;
+    measurer = document.createElement("div");
+    measurer.setAttribute("aria-hidden", "true");
+    measurer.style.cssText = [
+      "position:absolute",
+      "left:-10000px",
+      "top:0",
+      "visibility:hidden",
+      "pointer-events:none",
+      "contain:layout style",
+      "white-space:nowrap",
+      "z-index:-1",
+    ].join(";");
+    document.body.appendChild(measurer);
+    return measurer;
+  }
+
+  function measureCell(cell) {
+    const clone = cell.cloneNode(true);
+    clone.style.setProperty("width", "max-content", "important");
+    clone.style.setProperty("min-width", "max-content", "important");
+    clone.style.setProperty("max-width", "none", "important");
+    clone.style.setProperty("overflow", "visible", "important");
+    clone.style.setProperty("text-overflow", "clip", "important");
+    clone.style.setProperty("white-space", "nowrap", "important");
+
+    clone.querySelectorAll("*").forEach((element) => {
+      element.style.setProperty("max-width", "none", "important");
+      element.style.setProperty("overflow", "visible", "important");
+      element.style.setProperty("text-overflow", "clip", "important");
+      element.style.setProperty("white-space", "nowrap", "important");
+    });
+
+    const host = ensureMeasurer();
+    host.appendChild(clone);
+    const width = Math.ceil(clone.getBoundingClientRect().width);
+    clone.remove();
+    return width;
+  }
 
   function applyWidths() {
     frame = 0;
-    const rows = Array.from(document.querySelectorAll(selector));
+    ensureStyle();
+    const rows = metricRows();
     if (!rows.length) return;
 
-    root.classList.add(measuringClass);
     const widths = minWidths.slice();
-    try {
-      for (const row of rows) {
-        const cells = Array.from(row.children);
-        cells.forEach((cell, index) => {
-          if (index >= widths.length) return;
-          widths[index] = Math.max(widths[index], Math.ceil(cell.scrollWidth));
-        });
-      }
-    } finally {
-      root.classList.remove(measuringClass);
+    for (const row of rows) {
+      const cells = Array.from(row.children);
+      cells.forEach((cell, index) => {
+        if (index >= widths.length) return;
+        widths[index] = Math.max(widths[index], measureCell(cell));
+      });
     }
 
     widths.forEach((width, index) => {
