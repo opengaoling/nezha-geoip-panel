@@ -271,18 +271,22 @@ func batchBlockOnlineUser(c *gin.Context) (any, error) {
 // @Produce json
 // @Success 200 {object} model.CommonResponse[any]
 // @Router /online-user/allow-waf [post]
-func allowWAFOnlineUser(c *gin.Context) (any, error) {
+func allowWAFOnlineUser(c *gin.Context) (*wafWhitelistResult, error) {
 	var list []string
 	if err := c.ShouldBindJSON(&list); err != nil {
 		return nil, err
 	}
 
-	next, added, err := appendWAFIPWhitelist(singleton.Conf.WAFIPWhitelist, utils.Unique(list))
+	next, added, existing, err := appendWAFIPWhitelist(singleton.Conf.WAFIPWhitelist, utils.Unique(list))
 	if err != nil {
 		return nil, err
 	}
+	result := &wafWhitelistResult{
+		Added:    added,
+		Existing: existing,
+	}
 	if len(added) == 0 {
-		return nil, nil
+		return result, nil
 	}
 
 	prev := singleton.Conf.WAFIPWhitelist
@@ -295,10 +299,15 @@ func allowWAFOnlineUser(c *gin.Context) (any, error) {
 	if err := model.BatchUnblockIP(singleton.DB, added); err != nil {
 		return nil, newGormError("%v", err)
 	}
-	return nil, nil
+	return result, nil
 }
 
-func appendWAFIPWhitelist(existing string, ips []string) (string, []string, error) {
+type wafWhitelistResult struct {
+	Added    []string `json:"added"`
+	Existing []string `json:"existing"`
+}
+
+func appendWAFIPWhitelist(existing string, ips []string) (string, []string, []string, error) {
 	normalized := normalizeWAFIPWhitelist(existing)
 	cfg := model.Config{ConfigDashboard: model.ConfigDashboard{WAFIPWhitelist: normalized}}
 	lines := make([]string, 0)
@@ -307,6 +316,7 @@ func appendWAFIPWhitelist(existing string, ips []string) (string, []string, erro
 	}
 
 	var added []string
+	var existingIPs []string
 	for _, rawIP := range ips {
 		ip := strings.TrimSpace(rawIP)
 		if ip == "" {
@@ -318,11 +328,12 @@ func appendWAFIPWhitelist(existing string, ips []string) (string, []string, erro
 		}
 		canonical := addr.String()
 		if cfg.IsWAFIPWhitelisted(canonical) {
+			existingIPs = append(existingIPs, canonical)
 			continue
 		}
 		lines = append(lines, canonical)
 		added = append(added, canonical)
 		cfg.WAFIPWhitelist = strings.Join(lines, "\n")
 	}
-	return strings.Join(lines, "\n"), added, nil
+	return strings.Join(lines, "\n"), added, existingIPs, nil
 }
