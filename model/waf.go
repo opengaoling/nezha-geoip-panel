@@ -41,12 +41,21 @@ type WAF struct {
 	Count           uint64 `json:"count,omitempty"`
 }
 
+var WAFIPWhitelistChecker func(ip string) bool
+
 func (w *WAF) TableName() string {
 	return "nz_waf"
 }
 
+func IsWAFIPWhitelisted(ip string) bool {
+	return WAFIPWhitelistChecker != nil && WAFIPWhitelistChecker(ip)
+}
+
 func CheckIP(db *gorm.DB, ip string) error {
 	if ip == "" {
+		return nil
+	}
+	if IsWAFIPWhitelisted(ip) {
 		return nil
 	}
 	ipBinary, err := utils.IPStringToBinary(ip)
@@ -105,6 +114,9 @@ func BatchUnblockIP(db *gorm.DB, ip []string) error {
 
 func BlockIP(db *gorm.DB, ip string, reason uint8, uid int64) error {
 	if ip == "" {
+		return nil
+	}
+	if IsWAFIPWhitelisted(ip) {
 		return nil
 	}
 	ipBinary, err := utils.IPStringToBinary(ip)

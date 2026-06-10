@@ -2,6 +2,7 @@ package model
 
 import (
 	"log"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -63,6 +64,10 @@ type ConfigDashboard struct {
 	// InstallHost/ListenHost 无法覆盖。运维在此用逗号分隔声明这些对外 host，
 	// 成员便无法注册与之冲突的 NAT 域名抢占路由。
 	ReservedHosts string `koanf:"reserved_hosts" json:"reserved_hosts,omitempty"`
+
+	// WAFIPWhitelist is a newline separated list of IP addresses or CIDR
+	// prefixes that bypass automatic WAF blocks.
+	WAFIPWhitelist string `koanf:"waf_ip_whitelist" json:"waf_ip_whitelist,omitempty"`
 
 	// IP变更提醒
 	EnableIPChangeNotification  bool   `koanf:"enable_ip_change_notification" json:"enable_ip_change_notification,omitempty"`
@@ -250,6 +255,31 @@ func (c *Config) SetMCPEnabled(v bool) {
 // Save 保存配置文件
 func (c *Config) Save() error {
 	return c.save()
+}
+
+func (c *Config) IsWAFIPWhitelisted(ip string) bool {
+	addr, err := netip.ParseAddr(strings.TrimSpace(ip))
+	if err != nil {
+		return false
+	}
+
+	for entry := range strings.SplitSeq(c.WAFIPWhitelist, "\n") {
+		entry = strings.TrimSpace(entry)
+		if entry == "" {
+			continue
+		}
+		if prefix, err := netip.ParsePrefix(entry); err == nil {
+			if prefix.Contains(addr) {
+				return true
+			}
+			continue
+		}
+		whitelistedAddr, err := netip.ParseAddr(entry)
+		if err == nil && whitelistedAddr == addr {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Config) RotateJWTSecretKeyIfNeeded(currentVersion string) (bool, error) {

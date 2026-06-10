@@ -101,6 +101,7 @@ func updateConfig(c *gin.Context) (any, error) {
 	singleton.Conf.InstallHost = sf.InstallHost
 	singleton.Conf.DashboardHost = sf.DashboardHost
 	singleton.Conf.ReservedHosts = sf.ReservedHosts
+	singleton.Conf.WAFIPWhitelist = normalizeWAFIPWhitelist(sf.WAFIPWhitelist)
 	singleton.Conf.IgnoredIPNotification = sf.IgnoredIPNotification
 	singleton.Conf.IPChangeNotificationGroupID = sf.IPChangeNotificationGroupID
 	singleton.Conf.SiteName = sf.SiteName
@@ -153,6 +154,17 @@ func fireMCPKillSwitch() {
 	cancelledRPC := rpc.CancelAllMCPInflight()
 	log.Printf("NEZHA>> MCP kill switch fired: purged=%d urls, revoked=%d streams, cancelled=%d rpc",
 		purgedURLs, revokedStreams, cancelledRPC)
+}
+
+func normalizeWAFIPWhitelist(value string) string {
+	var entries []string
+	for line := range strings.SplitSeq(value, "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			entries = append(entries, line)
+		}
+	}
+	return strings.Join(entries, "\n")
 }
 
 // resolveSettingEnableMCP picks the effective EnableMCP value for the

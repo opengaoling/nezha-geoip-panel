@@ -35,6 +35,7 @@ func InitConfigFromPath(path string) error {
 		log.Printf("NEZHA>> Rotated jwt_secret_key for dashboard version %s", Version)
 	}
 
+	model.WAFIPWhitelistChecker = Conf.IsWAFIPWhitelisted
 	Conf.updateIgnoredIPNotificationID()
 	Conf.Oauth2Providers = utils.MapKeysToSlice(Conf.Oauth2)
 	return nil

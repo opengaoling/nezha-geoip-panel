@@ -10,6 +10,7 @@ type SettingForm struct {
 	InstallHost                 string `json:"install_host,omitempty" validate:"optional"`
 	DashboardHost               string `json:"dashboard_host,omitempty" validate:"optional"`
 	ReservedHosts               string `json:"reserved_hosts,omitempty" validate:"optional"`
+	WAFIPWhitelist              string `json:"waf_ip_whitelist,omitempty" validate:"optional"`
 	CustomCode                  string `json:"custom_code,omitempty" validate:"optional"`
 	CustomCodeDashboard         string `json:"custom_code_dashboard,omitempty" validate:"optional"`
 	WebRealIPHeader             string `json:"web_real_ip_header,omitempty" validate:"optional"`   // 前端真实IP
