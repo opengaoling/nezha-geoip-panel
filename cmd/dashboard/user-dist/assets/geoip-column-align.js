@@ -11,6 +11,22 @@
     const style = document.createElement("style");
     style.id = styleId;
     style.textContent = `
+#root .server-inline-list {
+  width: max-content !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  overflow: visible !important;
+  scrollbar-width: auto !important;
+}
+#root .server-inline-list::-webkit-scrollbar {
+  display: none !important;
+}
+#root .server-inline-list > section,
+#root .server-inline-list > div {
+  width: max-content !important;
+  min-width: 100% !important;
+  max-width: none !important;
+}
 #root .server-inline-list > section > div > div:last-child > section:first-child {
   display: grid !important;
   grid-template-columns:
