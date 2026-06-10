@@ -78,7 +78,7 @@ func findStreamServer(out []model.StreamServer, id uint64) *model.StreamServer {
 // Guest: no auth → skip every HideForGuest server, Host.Filter() drops
 // PlatformVersion and agent Version while keeping the rest (including GPU).
 func TestFilterServersForViewerGuestHidesPrivateAndRedactsHost(t *testing.T) {
-	out := filterServersForViewer(makeStreamTestServers(), 0, false, true, nil)
+	out := filterServersForViewer(makeStreamTestServers(), 0, false, true, true, nil)
 
 	assert.Len(t, out, 2)
 	assert.Nil(t, findStreamServer(out, 2), "alice-hidden should be invisible to guests")
@@ -98,7 +98,7 @@ func TestFilterServersForViewerGuestHidesPrivateAndRedactsHost(t *testing.T) {
 func TestFilterServersForViewerNonOwnerMemberMatchesGuest(t *testing.T) {
 	servers := makeStreamTestServers()
 	carolID := uint64(300)
-	out := filterServersForViewer(servers, carolID, false, true, nil)
+	out := filterServersForViewer(servers, carolID, false, true, true, nil)
 
 	assert.Len(t, out, 2)
 	assert.Nil(t, findStreamServer(out, 2))
@@ -116,7 +116,7 @@ func TestFilterServersForViewerNonOwnerMemberMatchesGuest(t *testing.T) {
 func TestFilterServersForViewerOwnerSeesOwnHiddenAndFullHost(t *testing.T) {
 	servers := makeStreamTestServers()
 	aliceID := uint64(100)
-	out := filterServersForViewer(servers, aliceID, false, true, nil)
+	out := filterServersForViewer(servers, aliceID, false, true, true, nil)
 
 	assert.Len(t, out, 3, "alice sees her 2 servers + bob's 1 public server")
 	assert.Nil(t, findStreamServer(out, 4), "alice must not see bob's hidden server")
@@ -137,7 +137,7 @@ func TestFilterServersForViewerOwnerSeesOwnHiddenAndFullHost(t *testing.T) {
 // Admin: no restrictions — sees every server with full Host, regardless of owner or HideForGuest.
 func TestFilterServersForViewerAdminSeesAllWithFullHost(t *testing.T) {
 	servers := makeStreamTestServers()
-	out := filterServersForViewer(servers, 999, true, true, nil)
+	out := filterServersForViewer(servers, 999, true, true, true, nil)
 
 	assert.Len(t, out, 4)
 	for _, s := range out {
@@ -149,10 +149,27 @@ func TestFilterServersForViewerAdminSeesAllWithFullHost(t *testing.T) {
 // First-tick frame includes PublicNote, subsequent frames omit it.
 // This must hold regardless of viewer.
 func TestFilterServersForViewerWithoutPublicNoteFlagOmitsNote(t *testing.T) {
-	out := filterServersForViewer(makeStreamTestServers(), 0, false, false, nil)
+	out := filterServersForViewer(makeStreamTestServers(), 0, false, true, false, nil)
 
 	for _, s := range out {
 		assert.Empty(t, s.PublicNote, "follow-up frames must not include PublicNote")
+	}
+}
+
+func TestFilterServersForViewerWithoutStaticOmitsStaticFields(t *testing.T) {
+	out := filterServersForViewer(makeStreamTestServers(), 0, false, false, false, nil)
+
+	assert.Len(t, out, 2)
+	for _, s := range out {
+		assert.NotZero(t, s.ID)
+		assert.NotNil(t, s.State, "follow-up frames must keep realtime state")
+		assert.False(t, s.LastActive.IsZero(), "follow-up frames must keep liveness timestamp")
+		assert.Empty(t, s.Name)
+		assert.Empty(t, s.PublicNote)
+		assert.Zero(t, s.DisplayIndex)
+		assert.Nil(t, s.Host)
+		assert.Empty(t, s.CountryCode)
+		assert.Empty(t, s.Organization)
 	}
 }
 
@@ -180,7 +197,7 @@ func (p patAllowList) ServerIDs() []uint64 {
 // PAT server_ids whitelist must narrow ws/server visibility even for admins;
 // otherwise an admin-issued limited PAT still leaks every server's state.
 func TestFilterServersForViewerPATWhitelistNarrowsAdmin(t *testing.T) {
-	out := filterServersForViewer(makeStreamTestServers(), 999, true, true, patAllowList{3})
+	out := filterServersForViewer(makeStreamTestServers(), 999, true, true, true, patAllowList{3})
 
 	if assert.Len(t, out, 1, "admin PAT scoped to server_ids=[3] must only see server 3") {
 		assert.Equal(t, uint64(3), out[0].ID)
@@ -191,7 +208,7 @@ func TestFilterServersForViewerPATWhitelistNarrowsAdmin(t *testing.T) {
 }
 
 func TestFilterServersForViewerPATWhitelistNarrowsOwner(t *testing.T) {
-	out := filterServersForViewer(makeStreamTestServers(), 100, false, true, patAllowList{2})
+	out := filterServersForViewer(makeStreamTestServers(), 100, false, true, true, patAllowList{2})
 
 	if assert.Len(t, out, 1, "owner PAT scoped to {2} must only see server 2") {
 		assert.Equal(t, uint64(2), out[0].ID)
@@ -200,6 +217,6 @@ func TestFilterServersForViewerPATWhitelistNarrowsOwner(t *testing.T) {
 }
 
 func TestFilterServersForViewerNilPATKeepsLegacyVisibility(t *testing.T) {
-	withNil := filterServersForViewer(makeStreamTestServers(), 999, true, true, nil)
+	withNil := filterServersForViewer(makeStreamTestServers(), 999, true, true, true, nil)
 	assert.Len(t, withNil, 4, "no PAT must keep admin-wide visibility")
 }

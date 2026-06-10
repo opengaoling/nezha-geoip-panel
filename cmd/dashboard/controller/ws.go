@@ -148,7 +148,7 @@ func serverStream(c *gin.Context) (any, error) {
 
 	count := 0
 	for {
-		stat, err := getServerStat(count == 0, userId, isAdmin, patAccessor, patCacheKey)
+		stat, err := getServerStat(count == 0, count == 0, userId, isAdmin, patAccessor, patCacheKey)
 		if err != nil {
 			continue
 		}
@@ -177,12 +177,12 @@ var requestGroup singleflight.Group
 //
 // patCacheKey distinguishes PATs with disjoint server_ids whitelists so two
 // limited tokens for the same user do not share a singleflight projection.
-func getServerStat(withPublicNote bool, viewerUserID uint64, viewerIsAdmin bool, pat model.APITokenAccessor, patCacheKey string) ([]byte, error) {
-	cacheKey := fmt.Sprintf("serverStats::%t::%t::%d::%s", withPublicNote, viewerIsAdmin, viewerUserID, patCacheKey)
+func getServerStat(withStatic bool, withPublicNote bool, viewerUserID uint64, viewerIsAdmin bool, pat model.APITokenAccessor, patCacheKey string) ([]byte, error) {
+	cacheKey := fmt.Sprintf("serverStats::%t::%t::%t::%d::%s", withStatic, withPublicNote, viewerIsAdmin, viewerUserID, patCacheKey)
 	v, err, _ := requestGroup.Do(cacheKey, func() (any, error) {
 		servers := filterServersForViewer(
 			singleton.ServerShared.GetSortedList(),
-			viewerUserID, viewerIsAdmin, withPublicNote, pat,
+			viewerUserID, viewerIsAdmin, withStatic, withPublicNote, pat,
 		)
 		return json.Marshal(model.StreamServerData{
 			Now:     time.Now().Unix() * 1000,
@@ -222,7 +222,7 @@ func patStreamContext(c *gin.Context) (model.APITokenAccessor, string) {
 //     subset must never widen via its caller's role).
 //
 // viewerUserID == 0 represents an unauthenticated guest.
-func filterServersForViewer(servers []*model.Server, viewerUserID uint64, viewerIsAdmin bool, withPublicNote bool, pat model.APITokenAccessor) []model.StreamServer {
+func filterServersForViewer(servers []*model.Server, viewerUserID uint64, viewerIsAdmin bool, withStatic bool, withPublicNote bool, pat model.APITokenAccessor) []model.StreamServer {
 	out := make([]model.StreamServer, 0, len(servers))
 	for _, server := range servers {
 		if pat != nil && !pat.CanAccessServer(server.ID) {
@@ -232,23 +232,22 @@ func filterServersForViewer(servers []*model.Server, viewerUserID uint64, viewer
 		if server.HideForGuest && !isOwnerOrAdmin {
 			continue
 		}
-		var countryCode string
-		var organization string
-		if server.GeoIP != nil {
-			countryCode = server.GeoIP.CountryCode
-			organization = server.GeoIP.Organization
-		}
-		out = append(out, model.StreamServer{
+		streamServer := model.StreamServer{
 			ID:           server.ID,
-			Name:         server.Name,
 			PublicNote:   utils.IfOr(withPublicNote, server.PublicNote, ""),
-			DisplayIndex: server.DisplayIndex,
-			Host:         utils.IfOr(isOwnerOrAdmin, server.Host, server.Host.Filter()),
 			State:        server.State,
-			CountryCode:  countryCode,
-			Organization: organization,
 			LastActive:   server.LastActive,
-		})
+		}
+		if withStatic {
+			streamServer.Name = server.Name
+			streamServer.DisplayIndex = server.DisplayIndex
+			streamServer.Host = utils.IfOr(isOwnerOrAdmin, server.Host, server.Host.Filter())
+			if server.GeoIP != nil {
+				streamServer.CountryCode = server.GeoIP.CountryCode
+				streamServer.Organization = server.GeoIP.Organization
+			}
+		}
+		out = append(out, streamServer)
 	}
 	return out
 }
