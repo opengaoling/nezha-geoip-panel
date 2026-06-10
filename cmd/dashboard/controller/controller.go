@@ -187,6 +187,7 @@ func routers(r *gin.Engine, frontendDist fs.FS) {
 	auth.POST("/batch-delete/waf", restScopeMiddleware(model.ScopeAdminAll), adminHandler(batchDeleteBlockedAddress))
 	auth.GET("/online-user", restScopeMiddleware(model.ScopeAdminAll), pAdminHandler(listOnlineUser))
 	auth.POST("/online-user/batch-block", restScopeMiddleware(model.ScopeAdminAll), adminHandler(batchBlockOnlineUser))
+	auth.POST("/online-user/allow-waf", restScopeMiddleware(model.ScopeAdminAll), adminHandler(allowWAFOnlineUser))
 	auth.PATCH("/setting", restScopeMiddleware(model.ScopeAdminAll), adminHandler(updateConfig))
 	auth.POST("/maintenance", restScopeMiddleware(model.ScopeAdminAll), adminHandler(runMaintenance))
 

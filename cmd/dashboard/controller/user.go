@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"net/netip"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -256,4 +258,71 @@ func batchBlockOnlineUser(c *gin.Context) (any, error) {
 	}
 
 	return nil, nil
+}
+
+// Add online user IPs to WAF whitelist.
+// @Summary Add online user IPs to WAF whitelist
+// @Security BearerAuth
+// @Schemes
+// @Description Add online user IPs to WAF whitelist
+// @Tags admin required
+// @Accept json
+// @Param request body []string true "ip list"
+// @Produce json
+// @Success 200 {object} model.CommonResponse[any]
+// @Router /online-user/allow-waf [post]
+func allowWAFOnlineUser(c *gin.Context) (any, error) {
+	var list []string
+	if err := c.ShouldBindJSON(&list); err != nil {
+		return nil, err
+	}
+
+	next, added, err := appendWAFIPWhitelist(singleton.Conf.WAFIPWhitelist, utils.Unique(list))
+	if err != nil {
+		return nil, err
+	}
+	if len(added) == 0 {
+		return nil, nil
+	}
+
+	prev := singleton.Conf.WAFIPWhitelist
+	singleton.Conf.WAFIPWhitelist = next
+	if err := singleton.Conf.Save(); err != nil {
+		singleton.Conf.WAFIPWhitelist = prev
+		return nil, err
+	}
+
+	if err := model.BatchUnblockIP(singleton.DB, added); err != nil {
+		return nil, newGormError("%v", err)
+	}
+	return nil, nil
+}
+
+func appendWAFIPWhitelist(existing string, ips []string) (string, []string, error) {
+	normalized := normalizeWAFIPWhitelist(existing)
+	cfg := model.Config{ConfigDashboard: model.ConfigDashboard{WAFIPWhitelist: normalized}}
+	lines := make([]string, 0)
+	if normalized != "" {
+		lines = strings.Split(normalized, "\n")
+	}
+
+	var added []string
+	for _, rawIP := range ips {
+		ip := strings.TrimSpace(rawIP)
+		if ip == "" {
+			continue
+		}
+		addr, err := netip.ParseAddr(ip)
+		if err != nil {
+			return "", nil, err
+		}
+		canonical := addr.String()
+		if cfg.IsWAFIPWhitelisted(canonical) {
+			continue
+		}
+		lines = append(lines, canonical)
+		added = append(added, canonical)
+		cfg.WAFIPWhitelist = strings.Join(lines, "\n")
+	}
+	return strings.Join(lines, "\n"), added, nil
 }
