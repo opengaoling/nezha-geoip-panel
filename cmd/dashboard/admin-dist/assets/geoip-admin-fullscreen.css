@@ -1,0 +1,84 @@
+/* Full-width admin layout overrides for the embedded Nezha admin dist. */
+html,
+body,
+#root {
+  min-width: 0;
+}
+
+#root {
+  --admin-page-gutter: clamp(12px, 1.8vw, 24px);
+}
+
+#root .max-w-5xl,
+#root .max-w-7xl {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+#root header {
+  padding-left: var(--admin-page-gutter) !important;
+  padding-right: var(--admin-page-gutter) !important;
+}
+
+#root header > .max-w-5xl,
+#root .max-w-5xl.mx-auto,
+#root .max-w-7xl.mx-auto {
+  padding-left: var(--admin-page-gutter) !important;
+  padding-right: var(--admin-page-gutter) !important;
+}
+
+#root .px-3.max-w-7xl,
+#root .px-3 {
+  padding-left: var(--admin-page-gutter) !important;
+  padding-right: var(--admin-page-gutter) !important;
+}
+
+#root table {
+  width: 100% !important;
+}
+
+#root .min-w-\[960px\] {
+  min-width: max(960px, 100%) !important;
+}
+
+#root .overflow-x-auto {
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+#root .overflow-x-auto::-webkit-scrollbar {
+  display: block;
+  height: 8px;
+}
+
+#root .overflow-x-auto::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.35);
+  border-radius: 999px;
+}
+
+#root [class*="justify-between"] {
+  min-width: 0;
+}
+
+#root [class*="justify-between"] > * {
+  min-width: 0;
+}
+
+#root button,
+#root a,
+#root [role="button"] {
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  #root {
+    --admin-page-gutter: 10px;
+  }
+
+  #root h1 {
+    font-size: 1.5rem !important;
+    line-height: 2rem !important;
+  }
+}
