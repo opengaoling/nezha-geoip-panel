@@ -324,7 +324,7 @@ func appendWAFIPWhitelist(existing string, ips []string) (string, []string, []st
 		}
 		addr, err := netip.ParseAddr(ip)
 		if err != nil {
-			return "", nil, err
+			return "", nil, nil, err
 		}
 		canonical := addr.String()
 		if cfg.IsWAFIPWhitelisted(canonical) {
