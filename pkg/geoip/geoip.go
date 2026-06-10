@@ -3,11 +3,15 @@ package geoip
 import (
 	_ "embed"
 	"errors"
+	"fmt"
+	"io"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	maxminddb "github.com/oschwald/maxminddb-golang"
 )
@@ -16,22 +20,36 @@ import (
 var db []byte
 
 var (
+	countryDBPaths = []string{
+		"geoip/geoip.db",
+		"/dashboard/geoip/geoip.db",
+		"data/geoip.db",
+		"/dashboard/data/geoip.db",
+		"pkg/geoip/geoip.db",
+	}
+	asnDBPaths = []string{
+		"geoip/asn.mmdb",
+		"geoip/GeoLite2-ASN.mmdb",
+		"/dashboard/geoip/asn.mmdb",
+		"/dashboard/geoip/GeoLite2-ASN.mmdb",
+		"data/asn.mmdb",
+		"data/GeoLite2-ASN.mmdb",
+		"/dashboard/data/asn.mmdb",
+		"/dashboard/data/GeoLite2-ASN.mmdb",
+	}
+
 	dbOnce = sync.OnceValues(func() (*maxminddb.Reader, error) {
-		return openDB("NZ_GEOIP_DB", []string{
-			"data/geoip.db",
-			"/dashboard/data/geoip.db",
-			"pkg/geoip/geoip.db",
-		}, db)
+		return openDB("NZ_GEOIP_DB", countryDBPaths, db)
 	})
 
 	asnDBOnce = sync.OnceValues(func() (*maxminddb.Reader, error) {
-		return openDB("NZ_GEOIP_ASN_DB", []string{
-			"data/asn.mmdb",
-			"data/GeoLite2-ASN.mmdb",
-			"/dashboard/data/asn.mmdb",
-			"/dashboard/data/GeoLite2-ASN.mmdb",
-		}, nil)
+		return openDB("NZ_GEOIP_ASN_DB", asnDBPaths, nil)
 	})
+)
+
+const (
+	defaultCountryDBURL = "https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-Country.mmdb"
+	defaultASNDBURL     = "https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-ASN.mmdb"
 )
 
 type IPInfo struct {
@@ -64,6 +82,22 @@ type LookupResult struct {
 	CountryCode  string
 	Continent    string
 	Organization string
+}
+
+func EnsureDatabases() error {
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("NZ_GEOIP_DOWNLOAD")), "0") ||
+		strings.EqualFold(strings.TrimSpace(os.Getenv("NZ_GEOIP_DOWNLOAD")), "false") {
+		return nil
+	}
+
+	var errs []error
+	if err := ensureDBFile("GeoIP Country", "NZ_GEOIP_DB", "NZ_GEOIP_DB_URL", defaultCountryDBURL, countryDBPaths[0], countryDBPaths); err != nil {
+		errs = append(errs, err)
+	}
+	if err := ensureDBFile("GeoIP ASN", "NZ_GEOIP_ASN_DB", "NZ_GEOIP_ASN_DB_URL", defaultASNDBURL, asnDBPaths[0], asnDBPaths); err != nil {
+		errs = append(errs, err)
+	}
+	return errors.Join(errs...)
 }
 
 func Lookup(ip net.IP) (string, error) {
@@ -180,6 +214,90 @@ func openDBFile(path string) (*maxminddb.Reader, error) {
 		return nil, errors.New("geoip database is a stub")
 	}
 	return maxminddb.FromBytes(b)
+}
+
+func ensureDBFile(name, pathEnv, urlEnv, defaultURL, defaultPath string, fallbackPaths []string) error {
+	path := strings.TrimSpace(os.Getenv(pathEnv))
+	envPath := path != ""
+	if path == "" {
+		path = defaultPath
+	}
+	hasUsableDB := dbFileUsable(path) || (!envPath && anyDBFileUsable(fallbackPaths))
+
+	url := firstNonEmpty(os.Getenv(urlEnv), defaultURL)
+	if url == "" {
+		if hasUsableDB {
+			return nil
+		}
+		return fmt.Errorf("%s database download URL is empty", name)
+	}
+	if err := downloadDBFile(path, url); err != nil {
+		if hasUsableDB {
+			return nil
+		}
+		return fmt.Errorf("%s database: %w", name, err)
+	}
+	return nil
+}
+
+func anyDBFileUsable(paths []string) bool {
+	for _, path := range paths {
+		if dbFileUsable(path) {
+			return true
+		}
+	}
+	return false
+}
+
+func dbFileUsable(path string) bool {
+	reader, err := openDBFile(path)
+	if err != nil {
+		return false
+	}
+	_ = reader.Close()
+	return true
+}
+
+func downloadDBFile(path, url string) error {
+	cleanPath := filepath.Clean(path)
+	if err := os.MkdirAll(filepath.Dir(cleanPath), 0o755); err != nil {
+		return err
+	}
+
+	tmpPath := cleanPath + ".tmp"
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("unexpected HTTP status %s", resp.Status)
+	}
+
+	out, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	if err != nil {
+		return err
+	}
+	_, copyErr := io.Copy(out, resp.Body)
+	closeErr := out.Close()
+	if copyErr != nil {
+		_ = os.Remove(tmpPath)
+		return copyErr
+	}
+	if closeErr != nil {
+		_ = os.Remove(tmpPath)
+		return closeErr
+	}
+	if !dbFileUsable(tmpPath) {
+		_ = os.Remove(tmpPath)
+		return errors.New("downloaded database is empty")
+	}
+	return os.Rename(tmpPath, cleanPath)
 }
 
 func localizedName(names map[string]string) string {

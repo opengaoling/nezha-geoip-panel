@@ -24,6 +24,7 @@ import (
 	"github.com/nezhahq/nezha/cmd/dashboard/controller/waf"
 	"github.com/nezhahq/nezha/cmd/dashboard/rpc"
 	"github.com/nezhahq/nezha/model"
+	geoipx "github.com/nezhahq/nezha/pkg/geoip"
 	"github.com/nezhahq/nezha/pkg/idcodec"
 	"github.com/nezhahq/nezha/pkg/utils"
 	"github.com/nezhahq/nezha/proto"
@@ -131,6 +132,12 @@ func main() {
 			if singleton.Conf.Memory.GoMemLimitMB > 0 {
 				debug.SetMemoryLimit(singleton.Conf.Memory.GoMemLimitMB * 1024 * 1024)
 				log.Printf("NEZHA>> Go memory limit set to %d MB", singleton.Conf.Memory.GoMemLimitMB)
+			}
+			return nil
+		},
+		func() error {
+			if err := geoipx.EnsureDatabases(); err != nil {
+				log.Printf("NEZHA>> geoip databases not fully prepared: %v", err)
 			}
 			return nil
 		},
