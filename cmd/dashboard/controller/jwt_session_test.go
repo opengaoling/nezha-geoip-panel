@@ -3,7 +3,9 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -334,6 +336,69 @@ func TestIdentityHandler_ExpiredSessionRejected(t *testing.T) {
 
 	identity := identityHandler()(verify)
 	require.Nil(t, identity, "session whose expires_at is in the past must reject")
+}
+
+func TestUnauthorizedClearsAuthCookiesAndReturnsJSON401(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodGet, "/api/v1/profile", nil)
+
+	respondUnauthorized(c)
+
+	require.Equal(t, http.StatusUnauthorized, w.Code)
+	require.Equal(t, "1", w.Header().Get(authInvalidHeader))
+	require.Contains(t, w.Header().Get("Content-Type"), "application/json")
+	body := w.Body.String()
+	require.Contains(t, body, `"success":false`)
+	require.Contains(t, body, `"error":"ApiErrorUnauthorized"`)
+
+	cookies := w.Header().Values("Set-Cookie")
+	require.True(t, cookieCleared(cookies, "nz-jwt"), "old JWT cookie must be cleared: %v", cookies)
+	require.True(t, cookieCleared(cookies, csrfCookieName), "old CSRF cookie must be cleared: %v", cookies)
+}
+
+func TestFallbackAuthInvalidCookieClearsAndContinuesAsGuest(t *testing.T) {
+	cleanup := setupJWTSessionTest(t)
+	defer cleanup()
+
+	authMiddleware, err := jwt.New(initParams())
+	require.NoError(t, err)
+	require.NoError(t, authMiddleware.MiddlewareInit())
+
+	r := gin.New()
+	r.Use(func(c *gin.Context) {
+		c.Set(model.CtxKeyRealIPStr, "1.2.3.4")
+		c.Next()
+	})
+	r.GET("/api/v1/server-group", fallbackAuthMiddleware(authMiddleware), func(c *gin.Context) {
+		_, ok := c.Get(model.CtxKeyAuthorizedUser)
+		c.JSON(http.StatusOK, gin.H{"authenticated": ok})
+	})
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/server-group", nil)
+	req.AddCookie(&http.Cookie{Name: "nz-jwt", Value: "stale-token"})
+	r.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusOK, w.Code)
+	require.JSONEq(t, `{"authenticated":false}`, w.Body.String())
+	require.True(t, cookieCleared(w.Header().Values("Set-Cookie"), "nz-jwt"))
+
+	var wafRows []model.WAF
+	require.NoError(t, singleton.DB.Find(&wafRows).Error)
+	require.Empty(t, wafRows, "stale browser cookies must not be counted as brute-force tokens")
+}
+
+func cookieCleared(headers []string, name string) bool {
+	prefix := name + "="
+	for _, h := range headers {
+		if strings.HasPrefix(h, prefix) && strings.Contains(h, "Max-Age=0") {
+			return true
+		}
+	}
+	return false
 }
 
 func TestRefreshResponse_UpdatesSessionExpires(t *testing.T) {

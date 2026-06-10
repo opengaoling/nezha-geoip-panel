@@ -121,3 +121,48 @@
     max-width: 310px !important;
   }
 }
+
+/* Keep the first column visible after the runtime column-align script moves
+   row overflow back to the browser viewport. */
+#root .server-inline-list {
+  width: max-content !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  overflow: visible !important;
+  scrollbar-width: auto !important;
+}
+
+#root .server-inline-list > section,
+#root .server-inline-list > div,
+#root .server-inline-list > section > div {
+  width: max-content !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+#root .server-inline-list > section > div > section:first-child,
+#root .server-inline-list > div > section:first-child {
+  width: max-content !important;
+  min-width: 520px !important;
+  max-width: none !important;
+  overflow: visible !important;
+  grid-template-columns: 8px 17px max-content !important;
+}
+
+#root .server-inline-list > section > div > section:first-child > div:last-child,
+#root .server-inline-list > div > section:first-child > div:last-child,
+#root .server-inline-list > section > div > section:first-child > div:last-child > p:first-child,
+#root .server-inline-list > div > section:first-child > div:last-child > p:first-child {
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+#root .server-inline-list > section > div > section:first-child > div:last-child > p:first-child,
+#root .server-inline-list > div > section:first-child > div:last-child > p:first-child {
+  display: block !important;
+}

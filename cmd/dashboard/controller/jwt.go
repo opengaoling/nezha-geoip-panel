@@ -12,7 +12,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
-	"github.com/nezhahq/nezha/cmd/dashboard/controller/waf"
 	"github.com/nezhahq/nezha/model"
 	"github.com/nezhahq/nezha/pkg/idcodec"
 	"github.com/nezhahq/nezha/pkg/utils"
@@ -23,6 +22,8 @@ const (
 	jwtClaimUserID = "uid"
 	jwtClaimKeyID  = "keyId"
 	jwtKeyIDBytes  = 32
+
+	authInvalidHeader = "X-Nezha-Auth-Invalid"
 )
 
 func uaHash(c *gin.Context) string {
@@ -226,11 +227,27 @@ func authorizator() func(data any, c *gin.Context) bool {
 
 func unauthorized() func(c *gin.Context, code int, message string) {
 	return func(c *gin.Context, code int, message string) {
-		c.JSON(http.StatusOK, model.CommonResponse[any]{
-			Success: false,
-			Error:   "ApiErrorUnauthorized",
-		})
+		respondUnauthorized(c)
 	}
+}
+
+func respondUnauthorized(c *gin.Context) {
+	clearAuthCookies(c)
+	c.Header(authInvalidHeader, "1")
+	c.AbortWithStatusJSON(http.StatusUnauthorized, model.CommonResponse[any]{
+		Success: false,
+		Error:   "ApiErrorUnauthorized",
+	})
+}
+
+func clearAuthCookies(c *gin.Context) {
+	secure := c.Request.URL.Scheme == "https" || c.Request.TLS != nil
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("nz-jwt", "", -1, "/", "", secure, false)
+
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie(csrfCookieName, "", -1, "/", "", secure, false)
 }
 
 // Refresh token
@@ -265,25 +282,33 @@ func fallbackAuthMiddleware(mw *jwt.GinJWTMiddleware) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		claims, err := mw.GetClaimsFromJWT(c)
 		if err != nil {
+			if _, cookieErr := c.Cookie("nz-jwt"); cookieErr == nil {
+				clearAuthCookies(c)
+			}
 			return
 		}
 
 		switch v := claims["exp"].(type) {
 		case nil:
+			clearAuthCookies(c)
 			return
 		case float64:
 			if int64(v) < mw.TimeFunc().Unix() {
+				clearAuthCookies(c)
 				return
 			}
 		case json.Number:
 			n, err := v.Int64()
 			if err != nil {
+				clearAuthCookies(c)
 				return
 			}
 			if n < mw.TimeFunc().Unix() {
+				clearAuthCookies(c)
 				return
 			}
 		default:
+			clearAuthCookies(c)
 			return
 		}
 
@@ -296,11 +321,7 @@ func fallbackAuthMiddleware(mw *jwt.GinJWTMiddleware) func(c *gin.Context) {
 			model.UnblockIP(singleton.DB, realIP, model.BlockIDToken)
 			c.Set(mw.IdentityKey, identity)
 		} else {
-			isIpMismatch := c.GetBool(model.CtxKeyIsIPMismatch)
-			if !isIpMismatch {
-				waf.ShowBlockPage(c, model.BlockIP(singleton.DB, realIP, model.WAFBlockReasonTypeBruteForceToken, model.BlockIDToken))
-				return
-			}
+			clearAuthCookies(c)
 		}
 
 		c.Next()
