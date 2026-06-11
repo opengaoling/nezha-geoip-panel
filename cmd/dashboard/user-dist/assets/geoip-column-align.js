@@ -7,7 +7,7 @@
   let measurer = null;
 
   function isMobile() {
-    return root.classList.contains("geoip-mobile-ua");
+    return window.innerWidth < 768;
   }
 
   function ensureStyle() {
@@ -61,26 +61,6 @@
   max-width: none !important;
   flex-wrap: wrap !important;
   gap: 4px !important;
-}
-.geoip-mobile-ua #root .server-inline-list,
-.geoip-mobile-ua #root .server-inline-list > section,
-.geoip-mobile-ua #root .server-inline-list > div,
-.geoip-mobile-ua #root .server-inline-list > section > div,
-.geoip-mobile-ua #root .server-inline-list > section > div > div:last-child,
-.geoip-mobile-ua #root .server-inline-list > div > div:last-child {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-}
-
-.geoip-mobile-ua #root .server-inline-list > section > div > div:last-child > section:first-child,
-.geoip-mobile-ua #root .server-inline-list > div > div:last-child > section:first-child {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 8px 10px !important;
 }
 `;
     document.head.appendChild(style);
