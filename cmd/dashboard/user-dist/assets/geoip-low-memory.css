@@ -1,0 +1,86 @@
+/* Low-memory desktop overrides: keep large server lists cheap to repaint. */
+@media (min-width: 768px) {
+  #root *,
+  #root *::before,
+  #root *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  #root .server-inline-list *,
+  #root .server-card-list *,
+  #root .server-overview *,
+  #root .server-overview-controls * {
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  #root .server-inline-list > section > div,
+  #root .server-inline-list > div,
+  #root .server-card-list > * {
+    box-shadow: none !important;
+    contain: layout paint style !important;
+    will-change: auto !important;
+  }
+
+  #root .server-inline-list > section > div:hover,
+  #root .server-inline-list > div:hover,
+  #root .server-card-list > *:hover {
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    ring-width: 0 !important;
+    transform: none !important;
+  }
+
+  #root .server-card-list {
+    gap: 6px !important;
+    margin-top: 10px !important;
+  }
+
+  #root .server-card-list > * {
+    border-radius: 6px !important;
+    padding: 8px 10px !important;
+  }
+
+  #root .server-card-list > * > div > section[class*="grid-cols-5"] {
+    gap: 8px !important;
+  }
+
+  #root .server-card-list p,
+  #root .server-card-list div {
+    letter-spacing: 0 !important;
+  }
+
+  #root [class*="hover\\:shadow"],
+  #root [class*="hover\\:ring"],
+  #root [class*="shadow"],
+  #root [class*="animate-"],
+  #root [class*="transition"] {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+  }
+
+  #root .server-overview [class*="animate-ping"] {
+    display: none !important;
+  }
+
+  #root .server-inline-list .h-1\.5,
+  #root .server-card-list .h-1\.5 {
+    height: 3px !important;
+  }
+
+  .geoip-scroll-tools button {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    transition: none !important;
+  }
+
+  .geoip-scroll-tools button:hover {
+    transform: none !important;
+  }
+}
