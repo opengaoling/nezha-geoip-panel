@@ -153,6 +153,10 @@
   contain-intrinsic-size: 170px !important;
 }
 
+#root .server-card-list .geoip-mobile-platform-text {
+  display: none !important;
+}
+
 @media (max-width: 767px) {
   #root .server-card-list > * {
     align-items: stretch !important;
@@ -179,6 +183,7 @@
   }
 
   #root .server-card-list .geoip-mobile-platform-text {
+    display: block !important;
     max-width: 38px !important;
     overflow: hidden !important;
     text-align: center !important;
