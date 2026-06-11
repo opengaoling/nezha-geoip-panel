@@ -8,8 +8,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -357,6 +359,66 @@ func getUid(c *gin.Context) uint64 {
 }
 
 func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
+	frontendCacheToken := func() string {
+		version := strings.Map(func(r rune) rune {
+			if r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' || r == '-' || r == '_' {
+				return r
+			}
+			return '-'
+		}, singleton.Version)
+		version = strings.Trim(version, "-_")
+		if version == "" {
+			version = "debug"
+		}
+		return version + "-" + strconv.FormatUint(singleton.DashboardBootTime, 36)
+	}
+
+	isCacheBustedFrontendAsset := func(name string) bool {
+		base := path.Base(name)
+		ext := path.Ext(base)
+		switch ext {
+		case ".css":
+			return strings.HasPrefix(base, "geoip-")
+		case ".js":
+			return strings.HasPrefix(base, "geoip-") || strings.HasPrefix(base, "index.geoip-")
+		default:
+			return false
+		}
+	}
+
+	cacheBustHTML := func(content []byte) []byte {
+		token := frontendCacheToken()
+		assetRefPattern := regexp.MustCompile(`/assets/(?:geoip-[^"'<>]+\.(?:css|js)|index\.geoip-[^"'<>]+\.js)`)
+		return assetRefPattern.ReplaceAllFunc(content, func(match []byte) []byte {
+			ref := string(match)
+			if !isCacheBustedFrontendAsset(strings.TrimPrefix(ref, "/")) {
+				return match
+			}
+			ext := path.Ext(ref)
+			return []byte(strings.TrimSuffix(ref, ext) + "." + token + ext)
+		})
+	}
+
+	canonicalFrontendPath := func(filePath string) string {
+		if !strings.HasPrefix(filePath, "assets/") {
+			return filePath
+		}
+		base := path.Base(filePath)
+		ext := path.Ext(base)
+		if ext != ".js" && ext != ".css" {
+			return filePath
+		}
+		tokenSuffix := "." + frontendCacheToken() + ext
+		if !strings.HasSuffix(base, tokenSuffix) {
+			return filePath
+		}
+		originalBase := strings.TrimSuffix(base, tokenSuffix) + ext
+		if !isCacheBustedFrontendAsset(originalBase) {
+			return filePath
+		}
+		return path.Join(path.Dir(filePath), originalBase)
+	}
+
 	serveFile := func(c *gin.Context, name string, file fs.File, customStatusCode int) bool {
 		defer file.Close()
 		fileStat, err := file.Stat()
@@ -365,6 +427,19 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 		}
 		if fileStat.IsDir() {
 			return false
+		}
+		if strings.EqualFold(path.Base(name), "index.html") {
+			content, err := io.ReadAll(file)
+			if err != nil {
+				return false
+			}
+			c.Header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+			c.Header("Pragma", "no-cache")
+			c.Header("Expires", "0")
+			c.Header("Content-Type", "text/html; charset=utf-8")
+			c.Status(customStatusCode)
+			_, err = c.Writer.Write(cacheBustHTML(content))
+			return err == nil
 		}
 		readSeeker, ok := file.(io.ReadSeeker)
 		if !ok {
@@ -375,6 +450,7 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 	}
 
 	checkLocalFileOrFs := func(c *gin.Context, frontendFS fs.FS, templateRoot, filePath string, customStatusCode int) bool {
+		filePath = canonicalFrontendPath(filePath)
 		if filePath != "" {
 			localRoot, err := os.OpenRoot(templateRoot)
 			if err == nil {
