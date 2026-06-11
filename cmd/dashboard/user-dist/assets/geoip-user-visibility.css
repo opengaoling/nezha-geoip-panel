@@ -157,6 +157,16 @@
   display: none !important;
 }
 
+#root .server-card-list .geoip-mobile-platform {
+  align-self: center !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0 !important;
+  justify-content: center !important;
+  min-width: 17px !important;
+  padding-top: 0 !important;
+}
+
 @media (max-width: 767px) {
   #root .server-card-list > * {
     align-items: stretch !important;
