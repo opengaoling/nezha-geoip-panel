@@ -161,6 +161,33 @@
   #root .server-card-list section[style*="grid-template-columns"] {
     grid-template-columns: auto auto minmax(0, 1fr) !important;
     width: 100% !important;
+    align-items: start !important;
+  }
+
+  #root .server-card-list section[style*="grid-template-columns"] > span:first-child {
+    margin-top: 4px !important;
+    align-self: start !important;
+  }
+
+  #root .server-card-list .geoip-mobile-platform {
+    align-self: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    min-width: 24px !important;
+    padding-top: 1px !important;
+  }
+
+  #root .server-card-list .geoip-mobile-platform-text {
+    max-width: 38px !important;
+    overflow: hidden !important;
+    text-align: center !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    line-height: 10px !important;
+    color: hsl(var(--muted-foreground)) !important;
   }
 
   #root .server-card-list section[style*="grid-template-columns"] > div:last-child {
