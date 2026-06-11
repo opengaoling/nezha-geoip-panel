@@ -6,6 +6,9 @@
         const storageKey = "vite-ui-theme"
         const root = document.documentElement
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+        const mobileUA = /Mobile|Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini|Windows Phone/i.test(navigator.userAgent)
+        root.classList.toggle("geoip-mobile-ua", mobileUA)
+        window.GeoIPMobileUA = mobileUA
 
         const resolveTheme = (theme) =>
           theme === "system" ? (mediaQuery.matches ? "dark" : "light") : theme
@@ -113,7 +116,7 @@
     <link rel="modulepreload" crossorigin href="/assets/tailwind-merge.DxdGK6Xj.js">
     <link rel="stylesheet" crossorigin href="/assets/index.BMp6-FP0.css">
     <link rel="stylesheet" crossorigin href="/assets/geoip-scroll-tools.css">
-    <link rel="stylesheet" crossorigin href="/assets/geoip-user-visibility.css">
+    <link rel="stylesheet" crossorigin href="/assets/geoip-user-visibility-desktop-ua-20260611.css">
     <script src="/assets/geoip-auth-guard.js"></script>
   </head>
   <body>
