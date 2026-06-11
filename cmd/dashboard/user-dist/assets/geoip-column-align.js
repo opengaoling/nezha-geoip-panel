@@ -5,6 +5,11 @@
   const styleId = "geoip-column-align-runtime-css";
   let frame = 0;
   let measurer = null;
+  const mobileQuery = window.matchMedia("(max-width: 767px)");
+
+  function isMobile() {
+    return mobileQuery.matches;
+  }
 
   function ensureStyle() {
     if (document.getElementById(styleId)) return;
@@ -57,6 +62,28 @@
   max-width: none !important;
   flex-wrap: wrap !important;
   gap: 4px !important;
+}
+@media (max-width: 767px) {
+  #root .server-inline-list,
+  #root .server-inline-list > section,
+  #root .server-inline-list > div,
+  #root .server-inline-list > section > div,
+  #root .server-inline-list > section > div > div:last-child,
+  #root .server-inline-list > div > div:last-child {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  #root .server-inline-list > section > div > div:last-child > section:first-child,
+  #root .server-inline-list > div > div:last-child > section:first-child {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px 10px !important;
+  }
 }
 `;
     document.head.appendChild(style);
@@ -111,6 +138,7 @@
 
   function applyWidths() {
     frame = 0;
+    if (isMobile()) return;
     ensureStyle();
     const rows = metricRows();
     if (!rows.length) return;
@@ -130,6 +158,11 @@
   }
 
   function schedule() {
+    if (isMobile()) {
+      frame = 0;
+      minWidths.forEach((_, index) => root.style.removeProperty(`--geoip-col-${index + 1}`));
+      return;
+    }
     if (frame) return;
     frame = requestAnimationFrame(applyWidths);
   }
@@ -141,9 +174,9 @@
   }
 
   window.addEventListener("resize", schedule, { passive: true });
+  mobileQuery.addEventListener("change", schedule);
   new MutationObserver(schedule).observe(document.body, {
     childList: true,
     subtree: true,
-    characterData: true,
   });
 })();
