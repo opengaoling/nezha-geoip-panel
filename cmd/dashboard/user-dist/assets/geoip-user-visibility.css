@@ -160,9 +160,9 @@
 
   #root .server-card-list > * > div > section[class*="grid-cols-5"] {
     display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     width: 100% !important;
-    gap: 10px 10px !important;
+    gap: 10px 8px !important;
     align-items: stretch !important;
   }
 
@@ -214,14 +214,25 @@
 
   #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > div {
     max-width: 100% !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     white-space: nowrap !important;
   }
 
   #root .server-card-list .geoip-mobile-mem > div,
   #root .server-card-list .geoip-mobile-stg > div {
-    font-size: 10px !important;
+    display: block !important;
+    font-size: 10.5px !important;
     letter-spacing: 0 !important;
+    line-height: 13px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: pre-line !important;
+    word-break: keep-all !important;
+  }
+
+  #root .server-card-list .geoip-mobile-mem > div::first-line,
+  #root .server-card-list .geoip-mobile-stg > div::first-line {
+    line-height: 13px !important;
   }
 }
