@@ -158,6 +158,24 @@
     align-items: stretch !important;
   }
 
+  #root .server-card-list section[style*="grid-template-columns"] {
+    grid-template-columns: auto auto minmax(0, 1fr) !important;
+    width: 100% !important;
+  }
+
+  #root .server-card-list section[style*="grid-template-columns"] > div:last-child {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:first-child,
+  #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child),
+  #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   #root .server-card-list > * > div > section[class*="grid-cols-5"] {
     display: grid !important;
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
