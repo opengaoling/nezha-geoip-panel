@@ -113,7 +113,7 @@
     display: grid !important;
     gap: 0 6px !important;
     grid-template-columns: 64px 78px 78px 58px 58px 72px 72px 58px !important;
-    justify-content: start !important;
+    justify-content: center !important;
     min-width: 0 !important;
     width: max-content !important;
   }
@@ -160,9 +160,9 @@
 
   html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div,
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div {
-    align-items: center !important;
+    align-items: flex-start !important;
     min-width: 0 !important;
-    text-align: center !important;
+    text-align: left !important;
     width: 100% !important;
   }
 
@@ -170,8 +170,8 @@
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > div,
   html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > p,
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > p {
-    justify-content: center !important;
-    text-align: center !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
   }
 
   #root .server-card-list p,
