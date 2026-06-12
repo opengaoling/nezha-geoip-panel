@@ -165,6 +165,10 @@
   line-height: 0 !important;
 }
 
+#root .geoip-mobile-platform-icon {
+  display: none !important;
+}
+
 #root .server-card-list .geoip-mobile-platform {
   align-self: center !important;
   display: flex !important;
@@ -217,6 +221,17 @@
     font-weight: 600 !important;
     line-height: 10px !important;
     color: hsl(var(--muted-foreground)) !important;
+  }
+
+  .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform-icon {
+    display: block !important;
+    flex: 0 0 auto !important;
+    font-size: 11px !important;
+    height: 11px !important;
+    line-height: 11px !important;
+    margin-top: 1px !important;
+    text-align: left !important;
+    width: 16px !important;
   }
 
   .geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > div:last-child {

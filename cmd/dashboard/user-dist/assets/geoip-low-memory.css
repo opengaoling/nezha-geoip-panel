@@ -111,35 +111,35 @@
   }
 
   html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-cpu {
-    order: 1 !important;
-  }
-
-  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem {
     order: 2 !important;
   }
 
-  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg {
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem {
     order: 3 !important;
   }
 
-  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-upload {
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg {
     order: 4 !important;
   }
 
-  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-download {
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-upload {
     order: 5 !important;
   }
 
-  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-upload {
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-download {
     order: 6 !important;
   }
 
-  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-download {
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-upload {
     order: 7 !important;
   }
 
-  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-uptime {
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-download {
     order: 8 !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-uptime {
+    order: 1 !important;
   }
 
   html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div,
