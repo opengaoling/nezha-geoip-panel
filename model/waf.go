@@ -2,7 +2,10 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
+	"strconv"
+	"sync"
 	"time"
 
 	"github.com/nezhahq/nezha/pkg/utils"
@@ -43,6 +46,63 @@ type WAF struct {
 
 var WAFIPWhitelistChecker func(ip string) bool
 
+const (
+	wafCleanCacheTTL     = 5 * time.Second
+	wafCleanCacheMaxSize = 4096
+)
+
+var (
+	wafCheckCleanCache   = newWAFTTLCache()
+	wafUnblockCleanCache = newWAFTTLCache()
+)
+
+type wafTTLCache struct {
+	mu    sync.Mutex
+	items map[string]time.Time
+}
+
+func newWAFTTLCache() *wafTTLCache {
+	return &wafTTLCache{items: make(map[string]time.Time)}
+}
+
+func (c *wafTTLCache) get(key string, now time.Time) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	expiresAt, ok := c.items[key]
+	if !ok {
+		return false
+	}
+	if now.Before(expiresAt) {
+		return true
+	}
+	delete(c.items, key)
+	return false
+}
+
+func (c *wafTTLCache) set(key string, now time.Time) {
+	c.mu.Lock()
+	if len(c.items) >= wafCleanCacheMaxSize {
+		c.pruneLocked(now)
+	}
+	c.items[key] = now.Add(wafCleanCacheTTL)
+	c.mu.Unlock()
+}
+
+func (c *wafTTLCache) delete(key string) {
+	c.mu.Lock()
+	delete(c.items, key)
+	c.mu.Unlock()
+}
+
+func (c *wafTTLCache) pruneLocked(now time.Time) {
+	for key, expiresAt := range c.items {
+		if !now.Before(expiresAt) || len(c.items) >= wafCleanCacheMaxSize {
+			delete(c.items, key)
+		}
+	}
+}
+
 func (w *WAF) TableName() string {
 	return "nz_waf"
 }
@@ -62,6 +122,11 @@ func CheckIP(db *gorm.DB, ip string) error {
 	if err != nil {
 		return err
 	}
+	cacheKey := wafCheckCacheKey(db, ipBinary)
+	checkedAt := time.Now()
+	if wafCheckCleanCache.get(cacheKey, checkedAt) {
+		return nil
+	}
 
 	var blockTimestamp uint64
 	result := db.Model(&WAF{}).Order("block_timestamp desc").Select("block_timestamp").Where("ip = ?", ipBinary).Limit(1).Find(&blockTimestamp)
@@ -71,6 +136,7 @@ func CheckIP(db *gorm.DB, ip string) error {
 
 	// 检查是否未找到记录
 	if result.RowsAffected < 1 {
+		wafCheckCleanCache.set(cacheKey, checkedAt)
 		return nil
 	}
 
@@ -79,8 +145,8 @@ func CheckIP(db *gorm.DB, ip string) error {
 		return err
 	}
 
-	now := time.Now().Unix()
-	if powAdd(count, 4, blockTimestamp) > uint64(now) {
+	unixNow := time.Now().Unix()
+	if powAdd(count, 4, blockTimestamp) > uint64(unixNow) {
 		return errors.New("you were blocked by nezha WAF")
 	}
 	return nil
@@ -94,7 +160,18 @@ func UnblockIP(db *gorm.DB, ip string, uid int64) error {
 	if err != nil {
 		return err
 	}
-	return db.Unscoped().Delete(&WAF{}, "ip = ? and block_identifier = ?", ipBinary, uid).Error
+	cacheKey := wafUnblockCacheKey(db, ipBinary, uid)
+	now := time.Now()
+	if wafUnblockCleanCache.get(cacheKey, now) {
+		return nil
+	}
+
+	result := db.Unscoped().Delete(&WAF{}, "ip = ? and block_identifier = ?", ipBinary, uid)
+	if result.Error != nil {
+		return result.Error
+	}
+	wafUnblockCleanCache.set(cacheKey, now)
+	return nil
 }
 
 func BatchUnblockIP(db *gorm.DB, ip []string) error {
@@ -123,6 +200,9 @@ func BlockIP(db *gorm.DB, ip string, reason uint8, uid int64) error {
 	if err != nil {
 		return err
 	}
+	wafCheckCleanCache.delete(wafCheckCacheKey(db, ipBinary))
+	wafUnblockCleanCache.delete(wafUnblockCacheKey(db, ipBinary, uid))
+
 	w := WAF{
 		IP:              ipBinary,
 		BlockIdentifier: uid,
@@ -145,6 +225,14 @@ func BlockIP(db *gorm.DB, ip string, reason uint8, uid int64) error {
 		}
 		return tx.Exec("UPDATE nz_waf SET count = ?, block_reason = ?, block_timestamp = ? WHERE ip = ? and block_identifier = ?", count, reason, now, ipBinary, uid).Error
 	})
+}
+
+func wafCheckCacheKey(db *gorm.DB, ipBinary []byte) string {
+	return fmt.Sprintf("%p", db) + "\x00" + string(ipBinary)
+}
+
+func wafUnblockCacheKey(db *gorm.DB, ipBinary []byte, uid int64) string {
+	return wafCheckCacheKey(db, ipBinary) + "\x00" + strconv.FormatInt(uid, 10)
 }
 
 func powAdd(x, y, z uint64) uint64 {

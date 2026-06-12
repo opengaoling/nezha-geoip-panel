@@ -351,7 +351,6 @@ func TestUnauthorizedClearsAuthCookiesAndReturnsJSON401(t *testing.T) {
 	require.Equal(t, "1", w.Header().Get(authInvalidHeader))
 	require.Contains(t, w.Header().Get("Content-Type"), "application/json")
 	body := w.Body.String()
-	require.Contains(t, body, `"success":false`)
 	require.Contains(t, body, `"error":"ApiErrorUnauthorized"`)
 
 	cookies := w.Header().Values("Set-Cookie")

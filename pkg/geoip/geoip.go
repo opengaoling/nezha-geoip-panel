@@ -260,11 +260,11 @@ func dbFileUsable(path string) bool {
 
 func downloadDBFile(path, url string) error {
 	cleanPath := filepath.Clean(path)
-	if err := os.MkdirAll(filepath.Dir(cleanPath), 0o755); err != nil {
+	dir := filepath.Dir(cleanPath)
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return err
 	}
 
-	tmpPath := cleanPath + ".tmp"
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return err
@@ -279,10 +279,12 @@ func downloadDBFile(path, url string) error {
 		return fmt.Errorf("unexpected HTTP status %s", resp.Status)
 	}
 
-	out, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	// #nosec G304 -- GeoIP database paths are explicit operator configuration.
+	out, err := os.CreateTemp(dir, "."+filepath.Base(cleanPath)+".*.tmp")
 	if err != nil {
 		return err
 	}
+	tmpPath := out.Name()
 	_, copyErr := io.Copy(out, resp.Body)
 	closeErr := out.Close()
 	if copyErr != nil {

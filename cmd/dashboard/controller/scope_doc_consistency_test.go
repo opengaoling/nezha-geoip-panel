@@ -105,6 +105,7 @@ func canonicalRoutes() []scopedRoute {
 		{"GET", "/api/v1/waf", "nezha:admin:*"},
 		{"POST", "/api/v1/batch-delete/waf", "nezha:admin:*"},
 		{"GET", "/api/v1/online-user", "nezha:admin:*"},
+		{"POST", "/api/v1/online-user/allow-waf", "nezha:admin:*"},
 		{"POST", "/api/v1/online-user/batch-block", "nezha:admin:*"},
 		{"PATCH", "/api/v1/setting", "nezha:admin:*"},
 		{"POST", "/api/v1/maintenance", "nezha:admin:*"},
