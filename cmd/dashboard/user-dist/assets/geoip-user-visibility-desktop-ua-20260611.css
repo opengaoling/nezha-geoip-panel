@@ -206,8 +206,8 @@
     align-self: start !important;
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: wrap !important;
-    gap: 1px 3px !important;
+    flex-wrap: nowrap !important;
+    gap: 3px !important;
     align-items: center !important;
     grid-column: 1 / -1 !important;
     grid-row: 1 !important;
@@ -218,7 +218,7 @@
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform .fi {
-    flex-basis: 100% !important;
+    flex: 0 0 auto !important;
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform-text {
