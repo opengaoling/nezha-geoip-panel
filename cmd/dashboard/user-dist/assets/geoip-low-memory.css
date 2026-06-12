@@ -52,7 +52,7 @@
     contain-intrinsic-size: 58px !important;
     display: grid !important;
     gap: 10px !important;
-    grid-template-columns: minmax(280px, 1.25fr) minmax(660px, 3fr) auto !important;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(720px, 3.4fr) auto !important;
     min-height: 54px !important;
     padding: 6px 10px !important;
     width: 100% !important;
@@ -95,9 +95,9 @@
   html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"],
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] {
     display: grid !important;
-    gap: 0 12px !important;
+    gap: 0 10px !important;
     grid-template-columns: 74px 104px 104px 68px 68px 88px 88px 64px !important;
-    justify-content: end !important;
+    justify-content: start !important;
     min-width: 0 !important;
     width: max-content !important;
   }
