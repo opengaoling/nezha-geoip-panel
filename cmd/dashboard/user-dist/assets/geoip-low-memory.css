@@ -52,7 +52,7 @@
     contain-intrinsic-size: 58px !important;
     display: grid !important;
     gap: 10px !important;
-    grid-template-columns: minmax(360px, 1.35fr) minmax(620px, 2.8fr) auto !important;
+    grid-template-columns: minmax(360px, 1.35fr) minmax(600px, 2.8fr) auto !important;
     min-height: 54px !important;
     padding: 6px 10px !important;
     width: 100% !important;
@@ -112,10 +112,10 @@
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] {
     display: grid !important;
     gap: 0 6px !important;
-    grid-template-columns: 64px 78px 78px 58px 58px 72px 72px 58px !important;
-    justify-content: center !important;
+    grid-template-columns: 62px 76px 92px 92px 50px 58px 58px 50px !important;
+    justify-content: flex-start !important;
     min-width: 0 !important;
-    width: max-content !important;
+    width: 100% !important;
   }
 
   html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-extra-metric {
@@ -172,6 +172,26 @@
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > p {
     justify-content: flex-start !important;
     text-align: left !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem > div,
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg > div {
+    display: block !important;
+    line-height: 12px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: pre-line !important;
+  }
+
+  @media (min-width: 1220px) {
+    html:not(.geoip-mobile-ua) #root .server-card-list > * {
+      grid-template-columns: calc(50% - 12px) max-content auto !important;
+    }
+
+    html:not(.geoip-mobile-ua) #root .server-card-list > * > div,
+    html:not(.geoip-mobile-ua) #root .server-card-list > * > section:not([style*="grid-template-columns"]) {
+      width: max-content !important;
+    }
   }
 
   #root .server-card-list p,
