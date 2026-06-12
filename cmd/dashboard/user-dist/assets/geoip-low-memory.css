@@ -9,13 +9,19 @@
   }
 
   #root .server-inline-list *,
-  #root .server-card-list *,
   #root .server-overview *,
   #root .server-overview-controls * {
     transform: none !important;
     filter: none !important;
     backdrop-filter: none !important;
     box-shadow: none !important;
+  }
+
+  #root .server-card-list > * {
+    filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    transform: none !important;
   }
 
   #root .server-inline-list > section > div,

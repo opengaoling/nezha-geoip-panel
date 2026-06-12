@@ -1,46 +1,4 @@
 (function () {
-  function clampPercent(value) {
-    var number = Number(value);
-    if (!Number.isFinite(number)) return 0;
-    return Math.max(0, Math.min(100, number));
-  }
-
-  function valueFromIndicator(indicator) {
-    if (!indicator) return 0;
-    var transform = indicator.style && indicator.style.transform ? indicator.style.transform : "";
-    var match = transform.match(/translateX\(-?([0-9.]+)%\)/);
-    if (!match) return 0;
-    return clampPercent(100 - Number(match[1]));
-  }
-
-  function updateProgressBars(root) {
-    var scope = root && root.querySelectorAll ? root : document;
-    var bars = [];
-    if (scope.matches && scope.matches('[aria-label="Server Usage Bar"]')) {
-      bars.push(scope);
-    }
-    scope.querySelectorAll('[aria-label="Server Usage Bar"]').forEach(function (bar) {
-      bars.push(bar);
-    });
-    bars.forEach(function (bar) {
-      var indicator = bar.firstElementChild;
-      var value = bar.hasAttribute("aria-valuenow")
-        ? clampPercent(bar.getAttribute("aria-valuenow"))
-        : valueFromIndicator(indicator);
-      var nextTransform = "translateX(-" + (100 - value) + "%)";
-      if (bar.style.getPropertyValue("--geoip-progress-value") !== String(value)) {
-        bar.style.setProperty("--geoip-progress-value", String(value));
-      }
-      if (
-        indicator &&
-        (indicator.style.transform !== nextTransform ||
-          indicator.style.getPropertyPriority("transform") !== "important")
-      ) {
-        indicator.style.setProperty("transform", nextTransform, "important");
-      }
-    });
-  }
-
   function alignDesktopMetrics() {
     var html = document.documentElement;
     if (html.classList.contains("geoip-mobile-ua") || window.innerWidth < 768) return;
@@ -69,7 +27,6 @@
   }
 
   function run(root) {
-    updateProgressBars(root);
     alignDesktopMetrics();
   }
 
@@ -103,8 +60,7 @@
     }).observe(root, {
       childList: true,
       subtree: true,
-      attributes: true,
-      attributeFilter: ["aria-valuenow", "class"]
+      attributes: false
     });
   }
 
