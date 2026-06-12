@@ -198,18 +198,18 @@
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform {
     align-self: start !important;
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
     gap: 3px !important;
-    align-items: flex-start !important;
-    min-width: 24px !important;
-    padding-top: 1px !important;
+    align-items: center !important;
+    min-width: 54px !important;
+    padding-top: 2px !important;
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform-text {
     display: block !important;
     width: auto !important;
     min-width: 0 !important;
-    max-width: 38px !important;
+    max-width: 36px !important;
     height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -219,7 +219,7 @@
     white-space: nowrap !important;
     font-size: 9px !important;
     font-weight: 600 !important;
-    line-height: 10px !important;
+    line-height: 11px !important;
     color: hsl(var(--muted-foreground)) !important;
   }
 
@@ -229,8 +229,8 @@
     font-size: 11px !important;
     height: 11px !important;
     line-height: 11px !important;
-    margin-left: -18px !important;
-    margin-top: 1px !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
     text-align: left !important;
     width: 16px !important;
   }

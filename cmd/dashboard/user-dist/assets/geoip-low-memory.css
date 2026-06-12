@@ -52,7 +52,7 @@
     contain-intrinsic-size: 58px !important;
     display: grid !important;
     gap: 10px !important;
-    grid-template-columns: minmax(220px, 0.9fr) minmax(720px, 3.4fr) auto !important;
+    grid-template-columns: minmax(360px, 1.35fr) minmax(620px, 2.8fr) auto !important;
     min-height: 54px !important;
     padding: 6px 10px !important;
     width: 100% !important;
@@ -66,12 +66,28 @@
     width: 100% !important;
   }
 
+  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] {
+    grid-template-columns: 8px 18px minmax(0, 1fr) !important;
+  }
+
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child,
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p:first-child,
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child),
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
     max-width: 100% !important;
     min-width: 0 !important;
+    width: auto !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child,
+  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:first-child,
+  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child),
+  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
     width: auto !important;
   }
 
@@ -95,8 +111,8 @@
   html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"],
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] {
     display: grid !important;
-    gap: 0 10px !important;
-    grid-template-columns: 74px 104px 104px 68px 68px 88px 88px 64px !important;
+    gap: 0 6px !important;
+    grid-template-columns: 64px 78px 78px 58px 58px 72px 72px 58px !important;
     justify-content: start !important;
     min-width: 0 !important;
     width: max-content !important;
@@ -144,8 +160,18 @@
 
   html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div,
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div {
+    align-items: center !important;
     min-width: 0 !important;
+    text-align: center !important;
     width: 100% !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > div,
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > div,
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > p,
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > p {
+    justify-content: center !important;
+    text-align: center !important;
   }
 
   #root .server-card-list p,
