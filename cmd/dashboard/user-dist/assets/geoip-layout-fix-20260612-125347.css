@@ -117,12 +117,9 @@ html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-download 
 #root .server-card-list .geoip-mobile-mem [aria-label="Server Usage Bar"],
 #root .server-card-list .geoip-mobile-stg [aria-label="Server Usage Bar"] {
   align-self: flex-start !important;
-  clear: both !important;
   display: block !important;
-  float: none !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
-  margin-top: 2px !important;
   max-width: 100% !important;
   overflow: hidden !important;
   white-space: normal !important;
@@ -271,14 +268,12 @@ html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg [aria-label
 
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-cpu [aria-label="Server Usage Bar"] {
   max-width: 54px !important;
-  min-width: 54px !important;
   width: 54px !important;
 }
 
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem [aria-label="Server Usage Bar"],
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg [aria-label="Server Usage Bar"] {
   max-width: 72px !important;
-  min-width: 72px !important;
   width: 72px !important;
 }
 
