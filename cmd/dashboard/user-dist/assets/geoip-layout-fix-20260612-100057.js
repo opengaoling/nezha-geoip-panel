@@ -28,7 +28,9 @@
         ? clampPercent(bar.getAttribute("aria-valuenow"))
         : valueFromIndicator(indicator);
       var nextTransform = "translateX(-" + (100 - value) + "%)";
-      bar.style.setProperty("--geoip-progress-value", String(value));
+      if (bar.style.getPropertyValue("--geoip-progress-value") !== String(value)) {
+        bar.style.setProperty("--geoip-progress-value", String(value));
+      }
       if (
         indicator &&
         (indicator.style.transform !== nextTransform ||
@@ -47,11 +49,19 @@
     if (!offlineTitle || !firstRow) return;
     var rowStyle = window.getComputedStyle(firstRow);
     var rowLeft = firstRow.getBoundingClientRect().left;
+    var rowWidth = firstRow.getBoundingClientRect().width;
     var titleLeft = offlineTitle.getBoundingClientRect().left;
     var rowPaddingLeft = parseFloat(rowStyle.paddingLeft) || 0;
+    var rowPaddingRight = parseFloat(rowStyle.paddingRight) || 0;
     var rowColumnGap = parseFloat(rowStyle.columnGap) || parseFloat(rowStyle.gap) || 0;
-    var nameWidth = Math.round(titleLeft - rowLeft - rowPaddingLeft - rowColumnGap);
-    if (nameWidth >= 220 && nameWidth <= 900) {
+    var metricsWidth = 740;
+    var actionCell = firstRow.children && firstRow.children.length > 2 ? firstRow.children[2] : null;
+    var actionWidth = actionCell ? actionCell.getBoundingClientRect().width : 0;
+    var availableNameWidth = Math.floor(rowWidth - rowPaddingLeft - rowPaddingRight - metricsWidth - actionWidth - rowColumnGap * 2);
+    var targetNameWidth = Math.round(titleLeft - rowLeft - rowPaddingLeft - rowColumnGap);
+    var nameWidth = Math.max(180, Math.min(targetNameWidth, availableNameWidth, 340));
+    html.style.setProperty("--geoip-desktop-metrics-width", metricsWidth + "px");
+    if (nameWidth >= 180 && nameWidth <= 340) {
       html.style.setProperty("--geoip-desktop-name-col", nameWidth + "px");
     } else {
       html.style.setProperty("--geoip-desktop-name-col", "292px");
@@ -65,26 +75,36 @@
 
   function boot() {
     var root = document.getElementById("root") || document.body;
-    run(document);
+    var scheduled = false;
+    function schedule(target) {
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(function () {
+        scheduled = false;
+        run(target || document);
+      });
+    }
+    schedule(document);
     [80, 240, 600, 1200, 2400].forEach(function (delay) {
       window.setTimeout(function () {
-        run(document);
+        schedule(document);
       }, delay);
     });
     window.addEventListener("resize", function () {
-      window.requestAnimationFrame(function () {
-        alignDesktopMetrics();
-      });
+      schedule(document);
     }, { passive: true });
     new MutationObserver(function (mutations) {
+      var target = document;
       for (var i = 0; i < mutations.length; i += 1) {
-        run(mutations[i].target);
+        target = mutations[i].target || document;
+        break;
       }
+      schedule(target);
     }).observe(root, {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["aria-valuenow", "class", "style"]
+      attributeFilter: ["aria-valuenow", "class"]
     });
   }
 
