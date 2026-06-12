@@ -268,11 +268,11 @@
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-total-download {
-    order: 6 !important;
+    order: 7 !important;
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-upload {
-    order: 7 !important;
+    order: 6 !important;
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-total-upload {
