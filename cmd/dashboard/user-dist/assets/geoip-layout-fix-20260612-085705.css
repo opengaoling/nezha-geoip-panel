@@ -3,8 +3,6 @@
 html:not(.geoip-mobile-ua) #root .server-card-list > * {
   grid-template-columns: var(--geoip-desktop-name-col, 292px) 762px auto !important;
   gap: 10px !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
 }
 
 html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] {

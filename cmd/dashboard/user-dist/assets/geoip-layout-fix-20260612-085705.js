@@ -30,9 +30,12 @@
     var offlineTitle = document.querySelector("#root .server-overview > div:nth-child(3) p:first-child");
     var firstRow = document.querySelector("#root .server-card-list > *");
     if (!offlineTitle || !firstRow) return;
+    var rowStyle = window.getComputedStyle(firstRow);
     var rowLeft = firstRow.getBoundingClientRect().left;
     var titleLeft = offlineTitle.getBoundingClientRect().left;
-    var nameWidth = Math.round(titleLeft - rowLeft);
+    var rowPaddingLeft = parseFloat(rowStyle.paddingLeft) || 0;
+    var rowColumnGap = parseFloat(rowStyle.columnGap) || parseFloat(rowStyle.gap) || 0;
+    var nameWidth = Math.round(titleLeft - rowLeft - rowPaddingLeft - rowColumnGap);
     if (nameWidth >= 220 && nameWidth <= 900) {
       html.style.setProperty("--geoip-desktop-name-col", nameWidth + "px");
     } else {
