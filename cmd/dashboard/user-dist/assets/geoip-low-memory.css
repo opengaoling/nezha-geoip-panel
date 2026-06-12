@@ -80,15 +80,24 @@
   }
 
   html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child,
-  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:first-child,
-  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child),
-  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
+  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:first-child {
     max-width: none !important;
     min-width: 0 !important;
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: nowrap !important;
     width: auto !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child),
+  html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
+    display: inline-flex !important;
+    max-width: min(100%, 240px) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    width: fit-content !important;
   }
 
   html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p:first-child {
@@ -232,7 +241,7 @@
 
   @media (min-width: 1220px) {
     html:not(.geoip-mobile-ua) #root .server-card-list > * {
-      grid-template-columns: calc(50% - 12px) 590px auto !important;
+      grid-template-columns: calc(50% - 1px) 590px auto !important;
     }
 
     html:not(.geoip-mobile-ua) #root .server-card-list > * > div,
