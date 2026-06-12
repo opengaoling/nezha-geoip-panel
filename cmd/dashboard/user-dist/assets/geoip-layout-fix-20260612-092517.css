@@ -183,3 +183,12 @@ html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-download 
 #root .server-card-list .geoip-mobile-uptime [aria-label="Server Usage Bar"] {
   display: none !important;
 }
+
+#root .server-card-list .geoip-mobile-cpu [aria-label="Server Usage Bar"],
+#root .server-card-list .geoip-mobile-mem [aria-label="Server Usage Bar"],
+#root .server-card-list .geoip-mobile-stg [aria-label="Server Usage Bar"] {
+  align-self: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+}
