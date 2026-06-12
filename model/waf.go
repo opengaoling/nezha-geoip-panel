@@ -156,6 +156,9 @@ func UnblockIP(db *gorm.DB, ip string, uid int64) error {
 	if ip == "" {
 		return nil
 	}
+	if IsWAFIPWhitelisted(ip) {
+		return nil
+	}
 	ipBinary, err := utils.IPStringToBinary(ip)
 	if err != nil {
 		return err

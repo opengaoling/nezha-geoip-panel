@@ -1,12 +1,14 @@
 package model
 
 import (
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/nezhahq/nezha/pkg/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 func TestWAFIPWhitelistMatchesLineSeparatedIPAndCIDR(t *testing.T) {
@@ -65,6 +67,29 @@ func TestUnblockIPCleanCacheAvoidsRepeatedEmptyDelete(t *testing.T) {
 	key := wafUnblockCacheKey(db, ipBinary, BlockIDgRPC)
 	if !wafUnblockCleanCache.get(key, time.Now()) {
 		t.Fatal("empty UnblockIP should cache the clean ip/block identifier pair")
+	}
+}
+
+func TestUnblockIPSkipsWhitelistedIP(t *testing.T) {
+	prev := WAFIPWhitelistChecker
+	WAFIPWhitelistChecker = func(ip string) bool {
+		return ip == "203.0.113.10"
+	}
+	t.Cleanup(func() {
+		WAFIPWhitelistChecker = prev
+	})
+
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
+		DryRun: true,
+		Logger: logger.Discard,
+	})
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	db.AddError(errors.New("database should not be touched"))
+
+	if err := UnblockIP(db, "203.0.113.10", BlockIDgRPC); err != nil {
+		t.Fatalf("whitelisted UnblockIP should return before database access: %v", err)
 	}
 }
 
