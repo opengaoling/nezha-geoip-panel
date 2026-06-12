@@ -241,7 +241,7 @@
 
   @media (min-width: 1220px) {
     html:not(.geoip-mobile-ua) #root .server-card-list > * {
-      grid-template-columns: calc(50% + 9px) 590px auto !important;
+      grid-template-columns: var(--geoip-desktop-name-col, calc(50% + 12px)) 590px auto !important;
     }
 
     html:not(.geoip-mobile-ua) #root .server-card-list > * > div,

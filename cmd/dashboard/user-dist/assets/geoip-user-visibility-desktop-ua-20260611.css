@@ -189,7 +189,7 @@
   }
 
   .geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] {
-    grid-template-columns: auto 18px minmax(0, 1fr) !important;
+    grid-template-columns: 8px 18px minmax(0, 1fr) !important;
     width: 100% !important;
     align-items: start !important;
     gap: 1px 6px !important;
@@ -197,8 +197,8 @@
 
   .geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > span:first-child {
     grid-column: 1 !important;
-    grid-row: 2 !important;
-    margin-top: 4px !important;
+    grid-row: 1 !important;
+    margin-top: 5px !important;
     align-self: start !important;
   }
 
@@ -209,12 +209,12 @@
     flex-wrap: nowrap !important;
     gap: 3px !important;
     align-items: center !important;
-    grid-column: 1 / -1 !important;
+    grid-column: 2 !important;
     grid-row: 1 !important;
-    justify-content: flex-start !important;
-    min-width: 0 !important;
+    justify-content: center !important;
+    min-width: 17px !important;
     padding-top: 0 !important;
-    width: 100% !important;
+    width: 17px !important;
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform .fi {
@@ -225,7 +225,7 @@
     display: block !important;
     width: auto !important;
     min-width: 0 !important;
-    max-width: 92px !important;
+    max-width: 72px !important;
     height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -251,9 +251,21 @@
     width: 16px !important;
   }
 
+  .geoip-mobile-ua #root .server-card-list .geoip-mobile-meta-line {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .geoip-mobile-ua #root .server-card-list .geoip-mobile-meta-line > p[title] {
+    flex: 1 1 auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
   .geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > div:last-child {
     grid-column: 3 !important;
-    grid-row: 2 !important;
+    grid-row: 1 !important;
     width: auto !important;
     min-width: 0 !important;
     max-width: none !important;
