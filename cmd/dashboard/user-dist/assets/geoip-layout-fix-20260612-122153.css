@@ -87,6 +87,14 @@ html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-co
   white-space: nowrap !important;
 }
 
+html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > [aria-label="Server Usage Bar"],
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > [aria-label="Server Usage Bar"],
+html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > [aria-label="Server Usage Bar"] > *,
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > [aria-label="Server Usage Bar"] > * {
+  display: block !important;
+  white-space: normal !important;
+}
+
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem > div,
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg > div {
   display: inline-flex !important;
@@ -120,8 +128,10 @@ html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-download 
 #root .server-card-list .geoip-mobile-mem [aria-label="Server Usage Bar"] > *,
 #root .server-card-list .geoip-mobile-stg [aria-label="Server Usage Bar"] > * {
   flex: none !important;
+  height: 100% !important;
   max-width: none !important;
   min-width: 0 !important;
+  width: 100% !important;
 }
 
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-cpu,
