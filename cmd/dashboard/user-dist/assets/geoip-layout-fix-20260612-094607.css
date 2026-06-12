@@ -1,7 +1,7 @@
 /* Final row alignment and progress fixes. Loaded after the compact/low-memory CSS. */
 
 html:not(.geoip-mobile-ua) #root .server-card-list > * {
-  grid-template-columns: var(--geoip-desktop-name-col, 292px) 684px auto !important;
+  grid-template-columns: var(--geoip-desktop-name-col, 292px) 712px auto !important;
   gap: 10px !important;
 }
 
@@ -41,7 +41,7 @@ html:not(.geoip-mobile-ua) #root .server-card-list > * > section:not([style*="gr
   margin-left: 0 !important;
   max-width: none !important;
   min-width: 0 !important;
-  width: 684px !important;
+  width: 712px !important;
 }
 
 html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"],
@@ -50,12 +50,12 @@ html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-co
   display: grid !important;
   gap: 0 6px !important;
   grid-auto-flow: column !important;
-  grid-template-columns: 94px 62px 76px 94px 94px 50px 50px 64px 64px !important;
+  grid-template-columns: 122px 62px 76px 92px 92px 48px 48px 61px 61px !important;
   grid-template-rows: minmax(0, 1fr) !important;
   justify-content: flex-start !important;
   max-width: none !important;
   min-width: 0 !important;
-  width: 684px !important;
+  width: 712px !important;
 }
 
 html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div,
@@ -177,7 +177,7 @@ html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg > div {
 
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-upload,
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-download {
-  max-width: 66px !important;
+  max-width: 61px !important;
 }
 
 #root .server-card-list .geoip-mobile-uptime [aria-label="Server Usage Bar"] {
@@ -188,7 +188,52 @@ html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-download 
 #root .server-card-list .geoip-mobile-mem [aria-label="Server Usage Bar"],
 #root .server-card-list .geoip-mobile-stg [aria-label="Server Usage Bar"] {
   align-self: flex-start !important;
+  display: block !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
   width: 100% !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-cpu,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-upload,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-download,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-upload,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-download,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-uptime {
+  flex: 0 0 auto !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-cpu {
+  width: 76px !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg {
+  width: 92px !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-upload,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-download {
+  width: 48px !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-uptime {
+  width: 62px !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-platform,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-platform-text,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-platform-icon {
+  min-width: 0 !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-platform-text {
+  display: inline-block !important;
+  width: auto !important;
 }
