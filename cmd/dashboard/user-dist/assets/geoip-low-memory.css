@@ -36,20 +36,116 @@
     transform: none !important;
   }
 
-  #root .server-card-list {
-    gap: 6px !important;
+  html:not(.geoip-mobile-ua) #root .server-card-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
     margin-top: 10px !important;
+    width: 100% !important;
   }
 
-  #root .server-card-list > * {
-    border-radius: 6px !important;
-    padding: 8px 10px !important;
+  html:not(.geoip-mobile-ua) #root .server-card-list > * {
+    align-items: center !important;
+    border-radius: 0 !important;
+    border-bottom: 1px solid hsl(var(--border) / 0.72) !important;
     content-visibility: auto !important;
-    contain-intrinsic-size: 104px !important;
+    contain-intrinsic-size: 58px !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(280px, 1.25fr) minmax(660px, 3fr) auto !important;
+    min-height: 54px !important;
+    padding: 6px 10px !important;
+    width: 100% !important;
   }
 
-  #root .server-card-list > * > div > section[class*="grid-cols-5"] {
-    gap: 8px !important;
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] {
+    align-items: center !important;
+    grid-template-columns: 8px 18px minmax(0, 1fr) !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child,
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p:first-child,
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child),
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p:first-child {
+    font-size: 13px !important;
+    line-height: 16px !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child),
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
+    font-size: 10.5px !important;
+    line-height: 13px !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > div,
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section:not([style*="grid-template-columns"]) {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"],
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] {
+    display: grid !important;
+    gap: 0 12px !important;
+    grid-template-columns: 74px 104px 104px 68px 68px 88px 88px 64px !important;
+    justify-content: end !important;
+    min-width: 0 !important;
+    width: max-content !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-extra-metric {
+    display: flex !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-transfer-badges {
+    display: none !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-cpu {
+    order: 1 !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem {
+    order: 2 !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg {
+    order: 3 !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-upload {
+    order: 4 !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-download {
+    order: 5 !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-upload {
+    order: 6 !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-total-download {
+    order: 7 !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-uptime {
+    order: 8 !important;
+  }
+
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div,
+  html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div {
+    min-width: 0 !important;
+    width: 100% !important;
   }
 
   #root .server-card-list p,
