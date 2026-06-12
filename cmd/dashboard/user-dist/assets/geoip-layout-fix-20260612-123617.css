@@ -262,19 +262,8 @@ html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg > div {
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-cpu [aria-label="Server Usage Bar"],
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem [aria-label="Server Usage Bar"],
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg [aria-label="Server Usage Bar"] {
-  justify-self: start !important;
+  justify-self: stretch !important;
   position: relative !important;
-}
-
-html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-cpu [aria-label="Server Usage Bar"] {
-  max-width: 54px !important;
-  width: 54px !important;
-}
-
-html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem [aria-label="Server Usage Bar"],
-html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg [aria-label="Server Usage Bar"] {
-  max-width: 72px !important;
-  width: 72px !important;
 }
 
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem {
