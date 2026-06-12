@@ -1,0 +1,178 @@
+/* Final row alignment and progress fixes. Loaded after the compact/low-memory CSS. */
+
+html:not(.geoip-mobile-ua) #root .server-card-list > * {
+  grid-template-columns: var(--geoip-desktop-name-col, 292px) 762px auto !important;
+  gap: 10px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section[style*="grid-template-columns"] {
+  max-width: var(--geoip-desktop-name-col, 292px) !important;
+  min-width: 0 !important;
+  width: var(--geoip-desktop-name-col, 292px) !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child,
+html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:first-child {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:first-child {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p[title]:not(:first-child),
+html:not(.geoip-mobile-ua) #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:nth-of-type(2) {
+  display: inline-flex !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  width: fit-content !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list > * > div,
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section:not([style*="grid-template-columns"]) {
+  justify-self: start !important;
+  margin-left: 0 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  width: 762px !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"],
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] {
+  align-items: start !important;
+  display: grid !important;
+  gap: 0 10px !important;
+  grid-auto-flow: column !important;
+  grid-template-columns: 78px 70px 78px 108px 108px 56px 56px 88px 88px !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  justify-content: flex-start !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  width: 762px !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div,
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div {
+  align-items: flex-start !important;
+  grid-row: 1 !important;
+  justify-content: flex-start !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] p,
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] p,
+html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] div,
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] div {
+  font-size: 10.5px !important;
+  line-height: 14px !important;
+  text-align: left !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > div,
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > div {
+  display: flex !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-mem > div,
+html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-stg > div {
+  display: inline-flex !important;
+  gap: 3px !important;
+  white-space: nowrap !important;
+}
+
+.geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] {
+  align-items: center !important;
+  display: grid !important;
+  gap: 1px 7px !important;
+  grid-template-columns: 8px 18px minmax(0, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  width: 100% !important;
+}
+
+.geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > span,
+.geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > .relative {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+}
+
+.geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > span.fi,
+.geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > .fi {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+}
+
+.geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > div:last-child {
+  display: contents !important;
+}
+
+.geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > div:last-child > p:first-child {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+}
+
+.geoip-mobile-ua #root .server-card-list .geoip-mobile-meta-line {
+  align-items: center !important;
+  display: flex !important;
+  gap: 6px !important;
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+.geoip-mobile-ua #root .server-card-list .geoip-mobile-platform {
+  align-items: center !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  gap: 3px !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+}
+
+.geoip-mobile-ua #root .server-card-list .geoip-mobile-platform-icon {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+
+.geoip-mobile-ua #root .server-card-list .geoip-mobile-platform-text {
+  max-width: 76px !important;
+  min-width: 0 !important;
+}
+
+.geoip-mobile-ua #root .server-card-list .geoip-mobile-meta-line > p[title] {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+#root [aria-label="Server Usage Bar"] > * {
+  max-width: 100% !important;
+  transform: translateX(calc(-100% + var(--geoip-progress-value, 0) * 1%)) !important;
+  width: 100% !important;
+}
