@@ -5,21 +5,36 @@
     return Math.max(0, Math.min(100, number));
   }
 
+  function valueFromIndicator(indicator) {
+    if (!indicator) return 0;
+    var transform = indicator.style && indicator.style.transform ? indicator.style.transform : "";
+    var match = transform.match(/translateX\(-?([0-9.]+)%\)/);
+    if (!match) return 0;
+    return clampPercent(100 - Number(match[1]));
+  }
+
   function updateProgressBars(root) {
     var scope = root && root.querySelectorAll ? root : document;
     var bars = [];
-    if (scope.matches && scope.matches('[aria-label="Server Usage Bar"][aria-valuenow]')) {
+    if (scope.matches && scope.matches('[aria-label="Server Usage Bar"]')) {
       bars.push(scope);
     }
-    scope.querySelectorAll('[aria-label="Server Usage Bar"][aria-valuenow]').forEach(function (bar) {
+    scope.querySelectorAll('[aria-label="Server Usage Bar"]').forEach(function (bar) {
       bars.push(bar);
     });
     bars.forEach(function (bar) {
-      var value = clampPercent(bar.getAttribute("aria-valuenow"));
       var indicator = bar.firstElementChild;
+      var value = bar.hasAttribute("aria-valuenow")
+        ? clampPercent(bar.getAttribute("aria-valuenow"))
+        : valueFromIndicator(indicator);
+      var nextTransform = "translateX(-" + (100 - value) + "%)";
       bar.style.setProperty("--geoip-progress-value", String(value));
-      if (indicator) {
-        indicator.style.setProperty("transform", "translateX(-" + (100 - value) + "%)", "important");
+      if (
+        indicator &&
+        (indicator.style.transform !== nextTransform ||
+          indicator.style.getPropertyPriority("transform") !== "important")
+      ) {
+        indicator.style.setProperty("transform", nextTransform, "important");
       }
     });
   }
@@ -69,7 +84,7 @@
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["aria-valuenow", "class"]
+      attributeFilter: ["aria-valuenow", "class", "style"]
     });
   }
 
