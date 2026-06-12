@@ -78,8 +78,8 @@ html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-co
   text-align: left !important;
 }
 
-html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > div:not([aria-label="Server Usage Bar"]),
-html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > div:not([aria-label="Server Usage Bar"]) {
+html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > div,
+html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > div {
   display: flex !important;
   min-width: 0 !important;
   overflow: visible !important;
@@ -92,8 +92,6 @@ html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-co
 html:not(.geoip-mobile-ua) #root .server-card-list > * > div > section[class*="grid-cols-5"] > div > [aria-label="Server Usage Bar"] > *,
 html:not(.geoip-mobile-ua) #root .server-card-list > * > section[class*="grid-cols-5"] > div > [aria-label="Server Usage Bar"] > * {
   display: block !important;
-  left: auto !important;
-  right: auto !important;
   white-space: normal !important;
 }
 
