@@ -196,6 +196,7 @@
     display: flex !important;
     flex-direction: column !important;
     gap: 3px !important;
+    align-items: flex-start !important;
     min-width: 24px !important;
     padding-top: 1px !important;
   }
@@ -209,7 +210,7 @@
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
-    text-align: center !important;
+    text-align: left !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
     font-size: 9px !important;
@@ -248,7 +249,9 @@
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-uptime {
+    align-items: flex-start !important;
     order: 1 !important;
+    text-align: left !important;
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-cpu {
