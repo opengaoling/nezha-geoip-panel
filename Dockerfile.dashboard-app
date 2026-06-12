@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1.7
+FROM golang:1.26.4-bookworm AS builder
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    apt-get update \
+    && apt-get install -y --no-install-recommends gcc libc6-dev ca-certificates
+
+WORKDIR /src
+COPY . .
+
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go install github.com/swaggo/swag/cmd/swag@latest
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    swag init --pd -d cmd/dashboard -g main.go -o cmd/dashboard/docs
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=1 CGO_LDFLAGS="-static" \
+    go build -buildvcs=false -trimpath \
+    -ldflags "-linkmode external -extldflags -static -s -w" \
+    -o /dashboard/app ./cmd/dashboard
+
+FROM scratch
+COPY --from=builder /dashboard/app /dashboard/app
+COPY --from=builder /etc/ssl/certs /etc/ssl/certs
