@@ -145,6 +145,51 @@ html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-uptime {
   flex: 0 0 auto !important;
 }
 
+#root .server-card-list .geoip-mobile-cpu,
+#root .server-card-list .geoip-mobile-mem,
+#root .server-card-list .geoip-mobile-stg {
+  align-items: flex-start !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1px !important;
+  justify-content: flex-start !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+#root .server-card-list .geoip-mobile-cpu > p,
+#root .server-card-list .geoip-mobile-mem > p,
+#root .server-card-list .geoip-mobile-stg > p {
+  flex: 0 0 auto !important;
+  line-height: 12px !important;
+  margin: 0 !important;
+}
+
+#root .server-card-list .geoip-mobile-cpu > div:not([aria-label]),
+#root .server-card-list .geoip-mobile-mem > div:not([aria-label]),
+#root .server-card-list .geoip-mobile-stg > div:not([aria-label]) {
+  flex: 0 0 auto !important;
+  line-height: 14px !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  min-height: 14px !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+#root .server-card-list .geoip-mobile-cpu [aria-label="Server Usage Bar"],
+#root .server-card-list .geoip-mobile-mem [aria-label="Server Usage Bar"],
+#root .server-card-list .geoip-mobile-stg [aria-label="Server Usage Bar"] {
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  flex: 0 0 3px !important;
+  height: 3px !important;
+  margin-top: 1px !important;
+  position: relative !important;
+}
+
 html:not(.geoip-mobile-ua) #root .server-card-list .geoip-mobile-cpu {
   width: 78px !important;
 }

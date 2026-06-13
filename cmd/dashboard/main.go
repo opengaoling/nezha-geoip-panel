@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"embed"
 	"errors"
 	"flag"
 	"fmt"
@@ -39,8 +38,7 @@ type DashboardCliParam struct {
 
 var (
 	dashboardCliParam DashboardCliParam
-	//go:embed *-dist
-	frontendDist embed.FS
+	dashboardHTTP2    = &http.HTTP2Config{MaxConcurrentStreams: 4096}
 )
 
 func initSystem(bus chan<- *model.Service) error {
@@ -161,12 +159,13 @@ func main() {
 	go singleton.AlertSentinelStart()
 
 	grpcHandler := rpc.ServeRPC()
-	httpHandler := controller.ServeWeb(frontendDist)
+	httpHandler := controller.ServeWeb(os.DirFS("."))
 	controller.InitUpgrader()
 
 	muxHandler := newHTTPandGRPCMux(httpHandler, grpcHandler)
 	muxServerHTTP := &http.Server{
 		Handler:           muxHandler,
+		HTTP2:             dashboardHTTP2,
 		ReadHeaderTimeout: time.Second * 5,
 	}
 	muxServerHTTP.Protocols = new(http.Protocols)
@@ -178,6 +177,7 @@ func main() {
 		muxServerHTTPS = &http.Server{
 			Addr:              fmt.Sprintf("%s:%d", singleton.Conf.ListenHost, singleton.Conf.HTTPS.ListenPort),
 			Handler:           muxHandler,
+			HTTP2:             dashboardHTTP2,
 			ReadHeaderTimeout: time.Second * 5,
 			TLSConfig: &tls.Config{
 				InsecureSkipVerify: singleton.Conf.HTTPS.InsecureTLS,

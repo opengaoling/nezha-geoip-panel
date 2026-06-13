@@ -1,4 +1,38 @@
 (function () {
+  var metricClasses = ["geoip-mobile-cpu", "geoip-mobile-mem", "geoip-mobile-stg"];
+
+  function percentFromText(cell) {
+    var textNode = cell.querySelector("div:not([aria-label])");
+    if (!textNode) return null;
+    var match = textNode.textContent.match(/([0-9]+(?:\.[0-9]+)?)\s*%/);
+    if (!match) return null;
+    var value = Number(match[1]);
+    if (!Number.isFinite(value)) return null;
+    return Math.max(0, Math.min(100, value));
+  }
+
+  function normalizeUsageBar(cell) {
+    var bar = cell.querySelector('[aria-label="Server Usage Bar"]');
+    if (!bar) return;
+    if (bar.parentElement !== cell) {
+      cell.appendChild(bar);
+    }
+    var value = percentFromText(cell);
+    if (value == null) return;
+    bar.setAttribute("data-value", value.toFixed(2));
+    bar.setAttribute("data-max", "100");
+    var indicator = bar.firstElementChild;
+    if (indicator) {
+      indicator.style.transform = "translateX(-" + (100 - value).toFixed(4) + "%)";
+    }
+  }
+
+  function normalizeUsageBars(root) {
+    metricClasses.forEach(function (className) {
+      root.querySelectorAll("." + className).forEach(normalizeUsageBar);
+    });
+  }
+
   function alignDesktopMetrics() {
     var html = document.documentElement;
     if (html.classList.contains("geoip-mobile-ua") || window.innerWidth < 768) return;
@@ -28,6 +62,7 @@
 
   function run(root) {
     alignDesktopMetrics();
+    normalizeUsageBars(root || document);
   }
 
   function boot() {
