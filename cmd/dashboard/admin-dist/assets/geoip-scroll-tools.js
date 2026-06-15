@@ -1,6 +1,4 @@
 (function () {
-  if (document.getElementById("geoip-scroll-tools")) return;
-
   function scrollToEdge(top) {
     var scrollingElement = document.scrollingElement || document.documentElement;
     var target = top ? 0 : scrollingElement.scrollHeight;
@@ -32,9 +30,24 @@
     document.body.appendChild(tools);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", mount, { once: true });
-  } else {
+  function scheduleMount() {
     mount();
+    window.setTimeout(mount, 250);
+    window.setTimeout(mount, 1000);
+    window.setTimeout(mount, 2500);
   }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", scheduleMount, { once: true });
+  } else {
+    scheduleMount();
+  }
+
+  window.addEventListener("load", scheduleMount, { once: true });
+
+  new MutationObserver(function () {
+    if (!document.getElementById("geoip-scroll-tools")) {
+      mount();
+    }
+  }).observe(document.documentElement, { childList: true, subtree: true });
 })();

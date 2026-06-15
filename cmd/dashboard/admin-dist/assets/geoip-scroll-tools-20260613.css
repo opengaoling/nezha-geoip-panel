@@ -43,7 +43,7 @@ html body .geoip-scroll-tools {
   position: fixed !important;
   right: max(18px, env(safe-area-inset-right)) !important;
   bottom: max(18px, env(safe-area-inset-bottom)) !important;
-  z-index: 2147483000 !important;
+  z-index: 2147483647 !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
@@ -106,14 +106,22 @@ html body .geoip-scroll-tools svg {
 
 @media (max-width: 767px) {
   html body .geoip-scroll-tools {
-    right: max(12px, env(safe-area-inset-right)) !important;
-    bottom: max(12px, env(safe-area-inset-bottom)) !important;
+    left: max(8px, calc(100vw - 54px)) !important;
+    right: auto !important;
+    bottom: max(70px, calc(env(safe-area-inset-bottom) + 16px)) !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   html body .geoip-scroll-tools button {
-    width: 38px !important;
-    height: 38px !important;
-    min-width: 38px !important;
-    min-height: 38px !important;
+    display: inline-flex !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 }
