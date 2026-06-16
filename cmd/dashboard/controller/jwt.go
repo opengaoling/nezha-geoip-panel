@@ -260,6 +260,9 @@ func clearAuthCookies(c *gin.Context) {
 // @Success 200 {object} model.CommonResponse[model.LoginResponse]
 // @Router /refresh-token [post]
 func refreshResponse(c *gin.Context, code int, token string, expire time.Time) {
+	if singleton.Conf != nil && singleton.Conf.JWTTimeout > 0 {
+		expire = time.Now().Add(time.Hour * time.Duration(singleton.Conf.JWTTimeout))
+	}
 	if keyID := c.GetString(jwtClaimKeyID); keyID != "" {
 		_ = singleton.DB.Model(&model.JWTSession{}).
 			Where("key_id = ?", keyID).

@@ -28,6 +28,28 @@ func TestSettingForm_OmittedEnableMCPLeavesConfigUnchanged(t *testing.T) {
 	}
 }
 
+func TestSettingForm_OmittedJWTTimeoutLeavesConfigUnchanged(t *testing.T) {
+	body := []byte(`{"site_name":"X"}`)
+	var sf model.SettingForm
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&sf); err != nil {
+		t.Fatal(err)
+	}
+	if sf.JWTTimeout != nil {
+		t.Fatalf("JWTTimeout must be nil when JSON omits the key, got %v", *sf.JWTTimeout)
+	}
+}
+
+func TestSettingForm_ExplicitJWTTimeoutDecodes(t *testing.T) {
+	body := []byte(`{"jwt_timeout":168}`)
+	var sf model.SettingForm
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&sf); err != nil {
+		t.Fatal(err)
+	}
+	if sf.JWTTimeout == nil || *sf.JWTTimeout != 168 {
+		t.Fatalf("JWTTimeout must be *168, got %v", sf.JWTTimeout)
+	}
+}
+
 func TestSettingForm_ExplicitEnableMCPTrueDecodes(t *testing.T) {
 	body := []byte(`{"enable_mcp":true}`)
 	var sf model.SettingForm

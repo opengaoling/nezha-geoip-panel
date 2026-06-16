@@ -36,6 +36,7 @@ func listConfig(c *gin.Context) (*model.SettingResponse, error) {
 		Config: model.Setting{
 			ConfigForGuests:                config.ConfigForGuests,
 			ConfigDashboard:                config.ConfigDashboard,
+			JWTTimeout:                     config.JWTTimeout,
 			IgnoredIPNotificationServerIDs: config.IgnoredIPNotificationServerIDs,
 			Oauth2Providers:                config.Oauth2Providers,
 		},
@@ -92,6 +93,9 @@ func updateConfig(c *gin.Context) (any, error) {
 	if !userTemplateValid {
 		return nil, errors.New("invalid user template")
 	}
+	if sf.JWTTimeout != nil && (*sf.JWTTimeout < 1 || *sf.JWTTimeout > 720) {
+		return nil, errors.New("jwt_timeout must be between 1 and 720 hours")
+	}
 
 	singleton.Conf.Language = strings.ReplaceAll(sf.Language, "-", "_")
 
@@ -112,6 +116,9 @@ func updateConfig(c *gin.Context) (any, error) {
 	singleton.Conf.AgentRealIPHeader = sf.AgentRealIPHeader
 	singleton.Conf.AgentTLS = sf.AgentTLS
 	singleton.Conf.UserTemplate = sf.UserTemplate
+	if sf.JWTTimeout != nil {
+		singleton.Conf.JWTTimeout = *sf.JWTTimeout
+	}
 	mcpWasEnabled := singleton.Conf.MCPEnabled()
 	mcpNext := resolveSettingEnableMCP(sf.EnableMCP, mcpWasEnabled)
 
