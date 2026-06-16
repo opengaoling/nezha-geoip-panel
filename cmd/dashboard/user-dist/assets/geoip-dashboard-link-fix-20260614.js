@@ -2,20 +2,12 @@
   if (window.__geoipDashboardLinkFixInstalled) return;
   window.__geoipDashboardLinkFixInstalled = true;
 
-  var nativeFetch = typeof window.fetch === "function" ? window.fetch.bind(window) : null;
-  var authState = null;
-  var authCheckPromise = null;
-
   function sameOriginUrl(path) {
     return new URL(path, window.location.origin).href;
   }
 
   function dashboardUrl() {
     return sameOriginUrl("/dashboard");
-  }
-
-  function dashboardLoginUrl() {
-    return sameOriginUrl("/dashboard/login");
   }
 
   function isDashboardEntryUrl(url) {
@@ -35,66 +27,6 @@
     } catch (_e) {
       return false;
     }
-  }
-
-  function currentLanguage() {
-    try {
-      return (localStorage.getItem("language") || document.documentElement.lang || navigator.language || "").toLowerCase();
-    } catch (_e) {
-      return (navigator.language || "").toLowerCase();
-    }
-  }
-
-  function labelForState(isAuthed) {
-    var lang = currentLanguage();
-    if (lang.indexOf("zh-tw") === 0 || lang.indexOf("zh-hk") === 0) {
-      return isAuthed ? "管理後台" : "登錄";
-    }
-    if (lang.indexOf("zh") === 0) {
-      return isAuthed ? "后台管理" : "登录";
-    }
-    return isAuthed ? "Dashboard" : "Login";
-  }
-
-  function isAuthedProfilePayload(payload) {
-    if (!payload || typeof payload !== "object") return false;
-    if (payload.error) return false;
-    if (payload.success === false) return false;
-    return Boolean(payload.data || payload.user || payload.id || payload.username);
-  }
-
-  function checkAuth() {
-    if (authCheckPromise) return authCheckPromise;
-    if (!nativeFetch) {
-      authState = false;
-      updateDashboardLinks();
-      return Promise.resolve(false);
-    }
-
-    authCheckPromise = nativeFetch("/api/v1/profile", {
-      credentials: "same-origin",
-      cache: "no-store",
-      headers: { Accept: "application/json" }
-    }).then(function (response) {
-      if (!response || !response.ok) return false;
-      return response.clone().json().then(isAuthedProfilePayload, function () {
-        return true;
-      });
-    }).catch(function () {
-      return false;
-    }).then(function (isAuthed) {
-      authState = Boolean(isAuthed);
-      updateDashboardLinks();
-      return authState;
-    }).finally(function () {
-      authCheckPromise = null;
-    });
-
-    return authCheckPromise;
-  }
-
-  function targetUrlForState(isAuthed) {
-    return isAuthed ? dashboardUrl() : dashboardLoginUrl();
   }
 
   function setLinkText(link, text) {
@@ -120,21 +52,15 @@
   }
 
   function updateDashboardLinks() {
-    if (authState === null) return;
-
     var links = document.querySelectorAll("a[href]");
     for (var i = 0; i < links.length; i += 1) {
       var link = links[i];
       if (!isDashboardEntry(link)) continue;
 
-      link.href = targetUrlForState(authState);
-      setLinkText(link, labelForState(authState));
-      link.setAttribute("data-geoip-dashboard-entry", authState ? "dashboard" : "login");
+      link.href = dashboardUrl();
+      setLinkText(link, "后台管理");
+      link.setAttribute("data-geoip-dashboard-entry", "dashboard");
     }
-  }
-
-  function navigateForAuth(isAuthed) {
-    window.location.assign(targetUrlForState(isAuthed));
   }
 
   function handleNavigationEvent(event) {
@@ -144,12 +70,7 @@
 
     event.preventDefault();
     event.stopPropagation();
-    if (authState !== null) {
-      navigateForAuth(authState);
-      return;
-    }
-
-    checkAuth().then(navigateForAuth);
+    window.location.assign(dashboardUrl());
   }
 
   function wrapHistoryMethod(methodName) {
@@ -163,11 +84,7 @@
         try {
           var nextUrl = new URL(url, window.location.href);
           if (isDashboardEntryUrl(nextUrl)) {
-            checkAuth().then(function (isAuthed) {
-              if (!isAuthed && nextUrl.pathname !== "/dashboard/login") {
-                window.location.replace(dashboardLoginUrl());
-              }
-            });
+            window.history.replaceState(null, "", dashboardUrl());
           }
         } catch (_e) {}
       }
@@ -188,8 +105,8 @@
   });
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", checkAuth, { once: true });
+    document.addEventListener("DOMContentLoaded", updateDashboardLinks, { once: true });
   } else {
-    checkAuth();
+    updateDashboardLinks();
   }
 })();
