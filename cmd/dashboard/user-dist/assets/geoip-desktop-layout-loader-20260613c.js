@@ -1,6 +1,6 @@
 (function () {
   var desktopCssId = 'geoip-desktop-layout-fix';
-  var desktopCssHref = '/assets/geoip-desktop-layout-fix-20260613c.css';
+  var desktopCssHref = '/assets/geoip-desktop-layout-fix-20260613c.css?v=front-theme-20260617a';
 
   function isDesktopLayout() {
     return !document.documentElement.classList.contains('geoip-mobile-ua') && window.innerWidth >= 900;
