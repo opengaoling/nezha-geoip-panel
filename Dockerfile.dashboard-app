@@ -4,10 +4,14 @@ FROM golang:1.26.4-bookworm AS builder
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     apt-get update \
-    && apt-get install -y --no-install-recommends gcc libc6-dev ca-certificates
+    && apt-get install -y --no-install-recommends gcc libc6-dev ca-certificates git
 
 WORKDIR /src
 COPY . .
+
+ARG FRONTEND_REPO=https://github.com/opengaoling/nezha-geoip-frontend.git
+ARG FRONTEND_REF=main
+RUN FRONTEND_REPO="${FRONTEND_REPO}" FRONTEND_REF="${FRONTEND_REF}" ./script/sync-geoip-frontend.sh
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
