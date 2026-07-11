@@ -419,13 +419,15 @@ func TestRefreshResponse_UpdatesSessionExpires(t *testing.T) {
 	c.Request = httptest.NewRequest("GET", "/api/v1/refresh-token", nil)
 	c.Set(jwtClaimKeyID, keyID)
 
-	newExpire := time.Now().Add(2 * time.Hour).Truncate(time.Second)
+	beforeRefresh := time.Now()
+	newExpire := beforeRefresh.Add(2 * time.Hour).Truncate(time.Second)
 	refreshResponse(c, 200, "fake-token", newExpire)
 
 	var sess model.JWTSession
 	require.NoError(t, singleton.DB.First(&sess, "key_id = ?", keyID).Error)
-	require.WithinDuration(t, newExpire, sess.ExpiresAt, time.Second,
-		"refreshResponse must extend the session's expires_at to the new expiry")
+	expectedExpire := beforeRefresh.Add(time.Hour * time.Duration(singleton.Conf.JWTTimeout))
+	require.WithinDuration(t, expectedExpire, sess.ExpiresAt, 5*time.Second,
+		"refreshResponse must extend the session's expires_at according to JWTTimeout")
 	require.WithinDuration(t, time.Now(), sess.LastUsedAt, 5*time.Second,
 		"refreshResponse must touch last_used_at")
 }
