@@ -172,7 +172,7 @@ func TestIdentityHandlerRejectsTokenVersionBump(t *testing.T) {
 	assert.Nil(t, identity, "session whose TokenVersion is stale must reject")
 }
 
-func TestIdentityHandlerFlagsIPMismatch(t *testing.T) {
+func TestIdentityHandlerAllowsIPChangeAndRefreshesSessionIP(t *testing.T) {
 	cleanup := setupJWTSessionTest(t)
 	defer cleanup()
 
@@ -188,8 +188,12 @@ func TestIdentityHandlerFlagsIPMismatch(t *testing.T) {
 	})
 
 	identity := identityHandler()(verify)
-	assert.Nil(t, identity, "IP mismatch must reject")
-	assert.True(t, verify.GetBool(model.CtxKeyIsIPMismatch))
+	require.NotNil(t, identity, "IP drift behind CDN or mobile networks must not force re-login")
+
+	var sess model.JWTSession
+	require.NoError(t, singleton.DB.First(&sess, "key_id = ?", claims[jwtClaimKeyID]).Error)
+	assert.Equal(t, "9.9.9.9", sess.IP)
+	assert.False(t, verify.GetBool(model.CtxKeyIsIPMismatch))
 }
 
 func TestIdentityHandlerRejectsUnknownKeyID(t *testing.T) {

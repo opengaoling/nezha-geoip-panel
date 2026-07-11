@@ -65,10 +65,10 @@ func issueJWTSession(c *gin.Context, user *model.User, jwtTimeoutHours int) (map
 
 func initParams() *jwt.GinJWTMiddleware {
 	return &jwt.GinJWTMiddleware{
-		Realm:       singleton.Conf.SiteName,
-		Key:         []byte(singleton.Conf.JWTSecretKey),
-		CookieName:  "nz-jwt",
-		SendCookie:  true,
+		Realm:      singleton.Conf.SiteName,
+		Key:        []byte(singleton.Conf.JWTSecretKey),
+		CookieName: "nz-jwt",
+		SendCookie: true,
 		// Pin the signing algorithm so a future library default change (or an
 		// `alg: none` confusion attempt) cannot weaken token validation.
 		SigningAlgorithm: "HS256",
@@ -153,10 +153,6 @@ func identityHandler() func(c *gin.Context) any {
 			return nil
 		}
 		currentIP := c.GetString(model.CtxKeyRealIPStr)
-		if sess.IP != currentIP {
-			c.Set(model.CtxKeyIsIPMismatch, true)
-			return nil
-		}
 
 		var user model.User
 		if err := singleton.DB.First(&user, sess.UserID).Error; err != nil {
@@ -166,9 +162,13 @@ func identityHandler() func(c *gin.Context) any {
 			return nil
 		}
 
+		updates := map[string]any{"last_used_at": now}
+		if sess.IP != currentIP {
+			updates["ip"] = currentIP
+		}
 		_ = singleton.DB.Model(&model.JWTSession{}).
 			Where("key_id = ?", keyID).
-			Update("last_used_at", now).Error
+			Updates(updates).Error
 
 		c.Set(jwtClaimKeyID, keyID)
 		return &user
