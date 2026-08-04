@@ -482,7 +482,8 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 	frontendPageUrlRegistry := []*regexp.Regexp{
 		// official user frontend
 		regexp.MustCompile(`^/$`),
-		regexp.MustCompile(`^/server/\d*$`),
+		regexp.MustCompile(`^/login$`),
+		regexp.MustCompile(`^/server/?\d*$`),
 		// backend frontend
 		regexp.MustCompile(`^/dashboard/$`),
 		regexp.MustCompile(`^/dashboard/login$`),
