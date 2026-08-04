@@ -39,6 +39,45 @@ func TestSettingForm_OmittedJWTTimeoutLeavesConfigUnchanged(t *testing.T) {
 	}
 }
 
+func TestSettingForm_OmittedHideNewServersForGuestLeavesConfigUnchanged(t *testing.T) {
+	body := []byte(`{"site_name":"X"}`)
+	var sf model.SettingForm
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&sf); err != nil {
+		t.Fatal(err)
+	}
+	if sf.HideNewServersForGuest != nil {
+		t.Fatalf("HideNewServersForGuest must be nil when JSON omits the key, got %v", sf.HideNewServersForGuest)
+	}
+}
+
+func TestSettingForm_ExplicitHideNewServersForGuestDecodes(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		value bool
+	}{
+		{name: "enabled", value: true},
+		{name: "disabled", value: false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			body := []byte(`{"hide_new_servers_for_guest":` + jsonBool(tc.value) + `}`)
+			var sf model.SettingForm
+			if err := json.NewDecoder(bytes.NewReader(body)).Decode(&sf); err != nil {
+				t.Fatal(err)
+			}
+			if sf.HideNewServersForGuest == nil || *sf.HideNewServersForGuest != tc.value {
+				t.Fatalf("HideNewServersForGuest must be *%v, got %v", tc.value, sf.HideNewServersForGuest)
+			}
+		})
+	}
+}
+
+func jsonBool(value bool) string {
+	if value {
+		return "true"
+	}
+	return "false"
+}
+
 func TestSettingForm_ExplicitJWTTimeoutDecodes(t *testing.T) {
 	body := []byte(`{"jwt_timeout":168}`)
 	var sf model.SettingForm
