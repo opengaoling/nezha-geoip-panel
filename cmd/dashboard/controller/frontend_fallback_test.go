@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -133,56 +132,50 @@ func TestFallbackToFrontendPreservesDashboardRoutes(t *testing.T) {
 	}
 }
 
-func TestFallbackToFrontendCacheBustsCustomUserAssets(t *testing.T) {
+func TestFallbackToFrontendRedirectsRetiredPublicFrontend(t *testing.T) {
 	t.Chdir(t.TempDir())
-	originalVersion := singleton.Version
-	originalBootTime := singleton.DashboardBootTime
-	singleton.Version = "v1.2.3+cache"
-	singleton.DashboardBootTime = 12345
-	t.Cleanup(func() {
-		singleton.Version = originalVersion
-		singleton.DashboardBootTime = originalBootTime
-	})
-
 	router := newFrontendFallbackTestRouter(t)
-	writeFrontendFallbackTestFile(t, "user-dist/index.html", `<html><head>
-<script type="module" src="/assets/index.geoip-mobile-transfer-20260611.js"></script>
-<link rel="stylesheet" href="/assets/geoip-user-visibility.css">
-<script src="/assets/geoip-scroll-tools.js"></script>
-<script type="module" src="/assets/react-dom.C2KtklHg.js"></script>
-</head></html>`)
-	writeFrontendFallbackTestFile(t, "user-dist/assets/index.geoip-mobile-transfer-20260611.js", "console.log('geoip app')")
-	writeFrontendFallbackTestFile(t, "user-dist/assets/geoip-user-visibility.css", "body{color:red}")
-	writeFrontendFallbackTestFile(t, "user-dist/assets/geoip-scroll-tools.js", "console.log('scroll')")
 
-	token := "v1-2-3-cache-" + strconv.FormatUint(12345, 36)
+	tests := map[string]string{
+		"/":         "/dashboard/",
+		"/login":    "/dashboard/login",
+		"/login/":   "/dashboard/login",
+		"/server":   "/dashboard/",
+		"/server/42": "/dashboard/",
+	}
+	for target, expected := range tests {
+		t.Run(target, func(t *testing.T) {
+			w := performFrontendFallbackRequest(t, router, target)
+			if w.Code != http.StatusFound {
+				t.Fatalf("%s status = %d, want %d", target, w.Code, http.StatusFound)
+			}
+			if location := w.Header().Get("Location"); location != expected {
+				t.Fatalf("%s Location = %q, want %q", target, location, expected)
+			}
+		})
+	}
+
+	w := performFrontendFallbackRequest(t, router, "/assets/app.js")
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("retired user asset status = %d, want %d", w.Code, http.StatusNotFound)
+	}
+}
+
+func TestFallbackToFrontendDoesNotServeRetiredUserAssets(t *testing.T) {
+	t.Chdir(t.TempDir())
+	router := newFrontendFallbackTestRouter(t)
+	writeFrontendFallbackTestFile(t, "user-dist/assets/retired.js", "console.log('retired user asset')")
+
 	w := performFrontendFallbackRequest(t, router, "/")
-	body := w.Body.String()
-	if w.Code != http.StatusOK {
-		t.Fatalf("/ status = %d body = %q, want 200", w.Code, body)
+	if w.Code != http.StatusFound {
+		t.Fatalf("/ status = %d, want %d", w.Code, http.StatusFound)
 	}
-	if cacheControl := w.Header().Get("Cache-Control"); !strings.Contains(cacheControl, "no-store") {
-		t.Fatalf("Cache-Control = %q, want no-store", cacheControl)
-	}
-	for _, expected := range []string{
-		"/assets/index.geoip-mobile-transfer-20260611." + token + ".js",
-		"/assets/geoip-user-visibility." + token + ".css",
-		"/assets/geoip-scroll-tools." + token + ".js",
-	} {
-		if !strings.Contains(body, expected) {
-			t.Fatalf("index.html missing cache-busted asset %q in %q", expected, body)
-		}
-	}
-	if !strings.Contains(body, "/assets/react-dom.C2KtklHg.js") {
-		t.Fatalf("hashed vendor asset should stay unchanged, body = %q", body)
+	if location := w.Header().Get("Location"); location != "/dashboard/" {
+		t.Fatalf("/ Location = %q, want /dashboard/", location)
 	}
 
-	w = performFrontendFallbackRequest(t, router, "/assets/geoip-user-visibility."+token+".css")
-	if w.Code != http.StatusOK || !strings.Contains(w.Body.String(), "body{color:red}") {
-		t.Fatalf("cache-busted css status = %d body = %q, want original css", w.Code, w.Body.String())
-	}
-	w = performFrontendFallbackRequest(t, router, "/assets/index.geoip-mobile-transfer-20260611."+token+".js")
-	if w.Code != http.StatusOK || !strings.Contains(w.Body.String(), "geoip app") {
-		t.Fatalf("cache-busted js status = %d body = %q, want original js", w.Code, w.Body.String())
+	w = performFrontendFallbackRequest(t, router, "/assets/retired.js")
+	if w.Code != http.StatusNotFound || strings.Contains(w.Body.String(), "retired user asset") {
+		t.Fatalf("retired asset status = %d body = %q, want a 404 without user content", w.Code, w.Body.String())
 	}
 }
