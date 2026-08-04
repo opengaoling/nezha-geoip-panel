@@ -168,7 +168,7 @@ func (c *Config) Read(path string, frontendTemplates []FrontendTemplate) error {
 	if err != nil {
 		return err
 	}
-	if c.k.Get("hide_new_servers_for_guest") == nil {
+	if !c.k.Exists("hide_new_servers_for_guest") {
 		c.HideNewServersForGuest = true
 	}
 
