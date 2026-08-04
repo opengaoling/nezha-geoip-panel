@@ -25,6 +25,7 @@ func TestReadConfig(t *testing.T) {
 			{"admin_template", c.AdminTemplate, c.AdminTemplate == "admin-dist"},
 			{"agent_secret_key", c.AgentSecretKey, c.AgentSecretKey != ""},
 			{"jwt_timeout", c.JWTTimeout, c.JWTTimeout == JWTTimeoutMinHours},
+			{"hide_new_servers_for_guest", c.HideNewServersForGuest, c.HideNewServersForGuest},
 		}
 
 		for _, field := range testFields {
@@ -37,7 +38,7 @@ func TestReadConfig(t *testing.T) {
 	})
 
 	t.Run("ReadFile", func(t *testing.T) {
-		const testCfg = "jwt_secret_key: test\njwt_timeout: 1\nuser_template: um\nadmin_template: am\nagent_secret_key: none\nsite_name: lowkick"
+		const testCfg = "jwt_secret_key: test\njwt_timeout: 1\nuser_template: um\nadmin_template: am\nagent_secret_key: none\nsite_name: lowkick\nhide_new_servers_for_guest: false"
 
 		var testFrontendTemplates = []FrontendTemplate{
 			{Path: "um"},
@@ -61,6 +62,7 @@ func TestReadConfig(t *testing.T) {
 			{"agent_secret_key", c.AgentSecretKey, c.AgentSecretKey == "none"},
 			{"site_name", c.SiteName, c.SiteName == "lowkick"},
 			{"jwt_timeout", c.JWTTimeout, c.JWTTimeout == JWTTimeoutMinHours},
+			{"hide_new_servers_for_guest", c.HideNewServersForGuest, !c.HideNewServersForGuest},
 		}
 
 		for _, field := range testFields {

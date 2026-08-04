@@ -119,6 +119,9 @@ func updateConfig(c *gin.Context) (any, error) {
 	if sf.JWTTimeout != nil {
 		singleton.Conf.JWTTimeout = *sf.JWTTimeout
 	}
+	if sf.HideNewServersForGuest != nil {
+		singleton.Conf.HideNewServersForGuest = *sf.HideNewServersForGuest
+	}
 	mcpWasEnabled := singleton.Conf.MCPEnabled()
 	mcpNext := resolveSettingEnableMCP(sf.EnableMCP, mcpWasEnabled)
 

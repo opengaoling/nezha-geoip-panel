@@ -57,6 +57,7 @@ type ConfigDashboard struct {
 	AgentRealIPHeader string `koanf:"agent_real_ip_header" json:"agent_real_ip_header,omitempty"` // Agent真实IP
 	UserTemplate      string `koanf:"user_template" json:"user_template,omitempty"`
 	AdminTemplate     string `koanf:"admin_template" json:"admin_template,omitempty"`
+	HideNewServersForGuest bool `koanf:"hide_new_servers_for_guest" json:"hide_new_servers_for_guest"`
 
 	EnablePlainIPInNotification bool `koanf:"enable_plain_ip_in_notification" json:"enable_plain_ip_in_notification,omitempty"` // 通知信息IP不打码
 
@@ -166,6 +167,9 @@ func (c *Config) Read(path string, frontendTemplates []FrontendTemplate) error {
 	err = c.k.UnmarshalWithConf("", c, koanfConf(c))
 	if err != nil {
 		return err
+	}
+	if c.k.Get("hide_new_servers_for_guest") == nil {
+		c.HideNewServersForGuest = true
 	}
 
 	if c.ListenPort == 0 {

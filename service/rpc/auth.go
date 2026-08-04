@@ -164,7 +164,7 @@ func (a *authHandler) check(ctx context.Context) (uint64, error) {
 		s := model.Server{
 			UUID:         clientUUID,
 			Name:         petname.Generate(2, "-"),
-			HideForGuest: true,
+			HideForGuest: singleton.Conf.HideNewServersForGuest,
 			Common: model.Common{
 				UserID: userId,
 			},
