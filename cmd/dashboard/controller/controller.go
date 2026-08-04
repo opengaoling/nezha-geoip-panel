@@ -480,6 +480,9 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 	}
 
 	frontendPageUrlRegistry := []*regexp.Regexp{
+		// official user frontend
+		regexp.MustCompile(`^/$`),
+		regexp.MustCompile(`^/server/\d*$`),
 		// backend frontend
 		regexp.MustCompile(`^/dashboard/$`),
 		regexp.MustCompile(`^/dashboard/login$`),
@@ -519,14 +522,6 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 			return
 		}
 
-		// The public frontend has been retired. Keep legacy links useful by sending
-		// them to the authenticated dashboard entry point instead of rendering it.
-		if c.Request.URL.Path == "/" || c.Request.URL.Path == "/login" ||
-			c.Request.URL.Path == "/server" || strings.HasPrefix(c.Request.URL.Path, "/server/") {
-			c.Redirect(http.StatusFound, "/dashboard/")
-			return
-		}
-
 		// redirect for /dashboard to /dashboard/
 		if c.Request.URL.Path == "/dashboard" {
 			c.Redirect(http.StatusMovedPermanently, "/dashboard/")
@@ -545,6 +540,12 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 			}
 			return
 		}
-		c.JSON(http.StatusNotFound, newErrorResponse(errors.New("404 Not Found")))
+		stripPath := strings.TrimPrefix(c.Request.URL.Path, "/")
+		if checkLocalFileOrFs(c, frontendDist, singleton.Conf.UserTemplate, stripPath, http.StatusOK) {
+			return
+		}
+		if !checkLocalFileOrFs(c, frontendDist, singleton.Conf.UserTemplate, "index.html", fallbackStatusCode) {
+			c.JSON(http.StatusNotFound, newErrorResponse(errors.New("404 Not Found")))
+		}
 	}
 }
