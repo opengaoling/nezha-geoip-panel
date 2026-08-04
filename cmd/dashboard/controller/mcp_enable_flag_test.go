@@ -100,6 +100,42 @@ func TestUpdateConfig_PersistsJWTTimeout(t *testing.T) {
 	require.Equal(t, timeout, singleton.Conf.JWTTimeout)
 }
 
+func TestUpdateConfig_RejectsJWTTimeoutShorterThanOneDay(t *testing.T) {
+	cleanup, uid := setupMCPTest(t)
+	defer cleanup()
+	installTestConfig(t)
+
+	origTemplates := singleton.FrontendTemplates
+	singleton.FrontendTemplates = []model.FrontendTemplate{
+		{Path: "user-dist", IsAdmin: false},
+	}
+	defer func() { singleton.FrontendTemplates = origTemplates }()
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	r.Use(func(c *gin.Context) {
+		setAuthUser(c, uid, model.RoleAdmin)
+		c.Next()
+	})
+	r.PATCH("/api/v1/setting", commonHandler(updateConfig))
+
+	body := map[string]any{
+		"site_name":     "test",
+		"language":      "en_US",
+		"user_template": "user-dist",
+		"jwt_timeout":   model.JWTTimeoutMinHours - 1,
+	}
+	raw, _ := json.Marshal(body)
+	req := httptest.NewRequest(http.MethodPatch, "/api/v1/setting", bytes.NewReader(raw))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	success, errMsg := decodeCommonResponseError(t, w.Body.Bytes())
+	require.False(t, success, "PATCH /setting must reject sessions shorter than one day")
+	require.Contains(t, errMsg, "24")
+}
+
 func TestUpdateConfig_OmittedJWTTimeoutPreservesCurrent(t *testing.T) {
 	cleanup, uid := setupMCPTest(t)
 	defer cleanup()

@@ -16,7 +16,7 @@ type SettingForm struct {
 	WebRealIPHeader             string `json:"web_real_ip_header,omitempty" validate:"optional"`   // 前端真实IP
 	AgentRealIPHeader           string `json:"agent_real_ip_header,omitempty" validate:"optional"` // Agent真实IP
 	UserTemplate                string `json:"user_template,omitempty" validate:"optional"`
-	JWTTimeout                  *int   `json:"jwt_timeout,omitempty" validate:"optional"` // JWT token过期时间（小时）
+	JWTTimeout                  *int   `json:"jwt_timeout,omitempty" validate:"optional"` // JWT token过期时间（小时，至少24小时）
 
 	AgentTLS                    bool `json:"tls,omitempty" validate:"optional"`
 	EnableIPChangeNotification  bool `json:"enable_ip_change_notification,omitempty" validate:"optional"`

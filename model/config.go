@@ -28,6 +28,8 @@ const JWTSecretEnvKey = "NZ_JWTSECRETKEY" // #nosec G101 -- environment variable
 const (
 	ConfigUsePeerIP                     = "NZ::Use-Peer-IP"
 	JWTSecretKeyRotationBaselineVersion = "v2.0.13"
+	JWTTimeoutMinHours                  = 24
+	JWTTimeoutMaxHours                  = 720
 )
 
 const (
@@ -220,9 +222,9 @@ func (c *Config) Read(path string, frontendTemplates []FrontendTemplate) error {
 		}
 	}
 
-	// Add JWTTimeout default check
-	if c.JWTTimeout == 0 {
-		c.JWTTimeout = 1
+	// Keep browser sessions valid for at least one day.
+	if c.JWTTimeout < JWTTimeoutMinHours {
+		c.JWTTimeout = JWTTimeoutMinHours
 	}
 
 	if c.AgentSecretKey == "" {

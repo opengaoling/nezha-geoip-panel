@@ -93,8 +93,8 @@ func updateConfig(c *gin.Context) (any, error) {
 	if !userTemplateValid {
 		return nil, errors.New("invalid user template")
 	}
-	if sf.JWTTimeout != nil && (*sf.JWTTimeout < 1 || *sf.JWTTimeout > 720) {
-		return nil, errors.New("jwt_timeout must be between 1 and 720 hours")
+	if sf.JWTTimeout != nil && (*sf.JWTTimeout < model.JWTTimeoutMinHours || *sf.JWTTimeout > model.JWTTimeoutMaxHours) {
+		return nil, errors.New("jwt_timeout must be between 24 and 720 hours")
 	}
 
 	singleton.Conf.Language = strings.ReplaceAll(sf.Language, "-", "_")
