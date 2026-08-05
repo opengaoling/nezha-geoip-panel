@@ -480,7 +480,10 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 	}
 
 	frontendPageUrlRegistry := []*regexp.Regexp{
-		// The dashboard is the only web application entry point.
+		// official user frontend
+		regexp.MustCompile(`^/$`),
+		regexp.MustCompile(`^/server/\d*$`),
+		// backend frontend
 		regexp.MustCompile(`^/dashboard/$`),
 		regexp.MustCompile(`^/dashboard/login$`),
 		regexp.MustCompile(`^/dashboard/service$`),
@@ -525,22 +528,6 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 			return
 		}
 
-		// Retire the public frontend. Keep legacy links useful without exposing
-		// an unauthenticated server list; the dashboard auth guard sends guests
-		// to its login page before loading inventory data.
-		switch c.Request.URL.Path {
-		case "/":
-			c.Redirect(http.StatusFound, "/dashboard/")
-			return
-		case "/login", "/login/":
-			c.Redirect(http.StatusFound, "/dashboard/login")
-			return
-		}
-		if c.Request.URL.Path == "/server" || strings.HasPrefix(c.Request.URL.Path, "/server/") {
-			c.Redirect(http.StatusFound, "/dashboard/")
-			return
-		}
-
 		fallbackStatusCode := getFallbackStatusCode(c.Request.URL.Path)
 		// Only /dashboard/ belongs to the admin frontend; /dashboard.. must not be trimmed into ../.
 		if strings.HasPrefix(c.Request.URL.Path, "/dashboard/") {
@@ -553,6 +540,12 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 			}
 			return
 		}
-		c.JSON(http.StatusNotFound, newErrorResponse(errors.New("404 Not Found")))
+		stripPath := strings.TrimPrefix(c.Request.URL.Path, "/")
+		if checkLocalFileOrFs(c, frontendDist, singleton.Conf.UserTemplate, stripPath, http.StatusOK) {
+			return
+		}
+		if !checkLocalFileOrFs(c, frontendDist, singleton.Conf.UserTemplate, "index.html", fallbackStatusCode) {
+			c.JSON(http.StatusNotFound, newErrorResponse(errors.New("404 Not Found")))
+		}
 	}
 }
